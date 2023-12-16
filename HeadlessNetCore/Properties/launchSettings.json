@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "HeadlessNetCore": {
+      "commandName": "Project",
+      "commandLineArgs": "stream 123456"
+    }
+  }
+}
