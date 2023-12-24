@@ -50,6 +50,10 @@ Written by Paul Walker - github.com/pwalkerdev
 * 0.1
   * MVP - This is the absolute bare minimum. A few TODOs are already in the code but I have much more features & improvements planned to implement very soon
 
+## Acknowledgments
+
+This project (and related repos) were inspired heavily by [LinqPad](https://www.linqpad.net/) [<img src="https://github.com/pwalkerdev/Headless/assets/73733025/e4016858-7f66-4195-b127-bcecde74c3a6" width="30" height="30">](https://www.linqpad.net/). LinqPad is a fantastic tool for .NET developers and there is no substitute for it. The idea of this repo is to branch out on the idea of having a 'playground' for writing simple scripts or designing protoypes; without the usual setup/project/boilerplate/etc. But rather than having a specialised tool for C#, I intend to create a more general tool which supports multiple languages. This repo houses only the core components for managing code snippets - kinda like a back-end. With other repos to house the 'front-end(s)'
+
 ## License
 
 This project is licensed under the GNU GPLv3 License - see the LICENSE.md file for details
