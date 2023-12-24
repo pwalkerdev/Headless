@@ -2,19 +2,19 @@
 
 A simple, barebones foundation for interpreting, compiling & executing code.
 
-</br>
-
 ## Description
 
-The goal of the Headless project is very simple: Provide me with convinient tools to write code quickly, without any setup. I don't wanna scaffold databases, create solutions/projects, download 30 different variations of a hello-world template or install 10,000 npm packages - matter of fact, I don't even want to name the code. I just want to write something quick, run it and see what happens. If it works then I have a prototype and I can go ahead and fuck about with all that other stuff.
+The goal of the Headless project is very simple: A convinient platform to write & test code quickly, with minimal setup - preferably none. No need to create a new solution, scaffold a database, use a project template or install a gigabyte of npm packages - matter of fact, you don't even have to save it to file. Just take a chunk of code, run it, and examine the output. From there, an idea can be proven, and _then_ you can start farting about with that other stuff.
 
-Headless is a group of libraries that aims to provide developers with very simple functionality. You give feed it an elegant, syntactically correct array of characters and it will analyse, compile and/or run the code. That's about it. Configuration can be set through the environment or command-line parameters. And (once I've tidied up the MVP) adding new language providers will also be quick and stright-forward.
+Or, maybe it's not an idea for a new product, feature or service. Maybe you just want to test a theory, better understand the behavior of a particular language feature or just run a couple of lines of code to see what happens. Upshot is, there's a long list of valid use-cases for the ability to quickly and easily test atomic chunks of code.
 
-After that you can simply find or create your preferred interface for Headless, which can feed it code and surface it's output. Or if you really want, you can code directly to Headless from your terminal - you do you.
+Headless is a framework that aims to deliver a straightforward means of script interpretation and execution. You feed Headless a unit of work, and it spits out the product of said input - or maybe a compiler errror lol. But that's about it. Configuration and preferences can be overriden with command-line parameters or environment variables. **(Not yet but very soon)** Adding new language providers will be a simple matter of implementing a common interface which can then be automatically loaded and invoked.
+
+Then, you can simply find (or develop) your preferred UI for Headless. A means of sending it work and visualising the output in a way that is most convinient for you or maybe integrates more tightly with your preferred language/SDK. If you really want, you can input code directly into Headless from your terminal... I mean yea you _can_.
 
 ## Getting Started
 
-### NOTE: A LOT OF THIS WILL PROBABLY CHANGE SOON AS I TIDY UP THE MVP. AS FAR AS I SEE IT, THERE IS NO POINT IN FILLING OUT THE `Getting Started` SECTION BEFORE I DO ALL THAT
+**NOTE: A lot of these details will probably change soon because I will be tidying up this MVP. So, I think there is no point in filling out this section until the 'proper' architecture is estblished**
 
 ### Dependencies
 
@@ -36,7 +36,7 @@ code blocks for commands
 
 ## Help
 
-### NOTE: SCROLL UP ROUGHLY 20 LINES
+**NOTE: Scroll up roughly 20 lines**
 
 Any advise for common problems or issues.
 ```
@@ -55,13 +55,9 @@ This project (and related repos) were inspired heavily by [LinqPad](https://www.
 ## License
 
 This project is licensed under the GNU GPLv3 License - see the LICENSE.md file for details
-
-</br>
   
 ---
   
-</br>
-
 <p align="center">
   Written by Paul Walker - github.com/pwalkerdev
 </p>
