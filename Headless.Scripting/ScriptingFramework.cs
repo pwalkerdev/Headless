@@ -9,7 +9,7 @@ namespace Headless.Framework
         public static void Dump(this object? value)
         {
             var str = value?.ToString() ?? "(null)";
-            Console.WriteLine(str.Contains('\n', StringComparison.Ordinal) ? $"SCRIPT:{Environment.NewLine}{str}" : $"SCRIPT:\t{str}");
+            Console.WriteLine("|> " + string.Join("\r\n--", str.Split(new [] { "\r\n", "\n" }, StringSplitOptions.None)));
         }
 #endif
 

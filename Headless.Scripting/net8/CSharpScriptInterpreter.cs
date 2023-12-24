@@ -60,7 +60,8 @@ public static class CSharpScriptInterpreter
             //if (compilerResult.Any())
             //    Console.WriteLine($"Compiler Warnings: {compilerResult.Summarise()}");
 
-            Console.WriteLine($"{string.Join("", Enumerable.Repeat('-', 12))}START{string.Join("", Enumerable.Repeat('-', 12))}");
+            Console.WriteLine($"{string.Join("", Enumerable.Repeat('-', 13))}OUTPUT{string.Join("", Enumerable.Repeat('-', 13))}");
+            Console.WriteLine();
 
             var sw = Stopwatch.StartNew();
             var delegateType = roslynScript.RunAsync().Result.ReturnValue;
@@ -68,7 +69,6 @@ public static class CSharpScriptInterpreter
             var result = @delegate?.Invoke(delegateType, null);
             sw.Stop();
 
-            Console.WriteLine($"{string.Join("", Enumerable.Repeat('-', 13))}END{string.Join("", Enumerable.Repeat('-', 13))}");
             Console.WriteLine();
             Console.WriteLine($"RESULT VALUE: {result}");
             Console.WriteLine($"TIME ELAPSED: {TimeSpan.FromTicks(sw.ElapsedTicks).TotalSeconds:N4}s");
