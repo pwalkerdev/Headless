@@ -2,6 +2,8 @@
 
 A simple, barebones foundation for interpreting, compiling & executing code.
 
+</br>
+
 ## Description
 
 The goal of the Headless project is very simple: Provide me with convinient tools to write code quickly, without any setup. I don't wanna scaffold databases, create solutions/projects, download 30 different variations of a hello-world template or install 10,000 npm packages - matter of fact, I don't even want to name the code. I just want to write something quick, run it and see what happens. If it works then I have a prototype and I can go ahead and fuck about with all that other stuff.
@@ -41,10 +43,6 @@ Any advise for common problems or issues.
 command to run if program contains helper info
 ```
 
-## Authors
-
-Written by Paul Walker - github.com/pwalkerdev
-
 ## Version History
 
 * 0.1
@@ -58,6 +56,12 @@ This project (and related repos) were inspired heavily by [LinqPad](https://www.
 
 This project is licensed under the GNU GPLv3 License - see the LICENSE.md file for details
 
-## Acknowledgments
+</br>
+  
+---
+  
+</br>
 
-This project (and related repos) were inspired heavily by [LinqPad - Joseph Albahari](https://www.linqpad.net/). LinqPad is a fantastic tool for .NET developers and there is no substitute for it. The idea of this repo is to branch out on the idea of having a 'playground' for writing simple scripts or designing protoypes; without the usual setup/project/boilerplate/etc. But rather than having a specialised tool for C#, I intend to create a more general tool which supports multiple languages. This repo houses only the core components for managing code snippets - kinda like a back-end. With other repos to house the 'front-end(s)'
+<p align="center">
+  Written by Paul Walker - github.com/pwalkerdev
+</p>
