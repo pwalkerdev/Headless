@@ -19,7 +19,7 @@ public static class CSharpScriptInterpreter
         try
         {
             var compilation = roslynScript.GetCompilation();
-            var syntaxTree = compilation.SyntaxTrees.Single(); // A ticking time bomb? how exciting! I wonder when it will blow up... 🙃
+            var syntaxTree = compilation.SyntaxTrees.Single();
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
             ScriptImplementationDescriptor implementationDescriptor;
 
@@ -28,7 +28,6 @@ public static class CSharpScriptInterpreter
                 var paramOrder = 0;
                 // ReSharper disable once RedundantAssignment
                 implementationDescriptor = new(ScriptEntryPointType.ExpressionBody, entryExpression.Get<ParameterSyntax>().Concat(entryExpression.Get<ParameterListSyntax>().SelectMany(pl => pl.Parameters)).Select(p => new ScriptParameterDescriptor(++paramOrder, p.Identifier.Text, semanticModel.ResolveParameterConcreteType(p))).ToArray());
-                // TODO: ¯\_(ツ)_/¯
             }
             else if (syntaxTree.GetRoot().Get<MethodDeclarationSyntax>().SingleOrDefault() is { } entryMethod)
             {
