@@ -2,6 +2,8 @@
 
 A simple, barebones foundation for interpreting, compiling & executing code.
 
+Also check out [prototyper](https://github.com/pwalkerdev/prototyper). A VSCode extension built using Headless.
+
 ## Description
 
 The goal of the Headless project is very simple: A convinient platform to write & test code quickly, with minimal setup - preferably none. No need to create a new solution, scaffold a database, use a project template or install a gigabyte of npm packages - matter of fact, you don't even have to save it to file. Just take a chunk of code, run it, and examine the output. From there, an idea can be proven, and _then_ you can start farting about with that other stuff.
