@@ -18,19 +18,21 @@
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <Using Include="Headless.Core" />
+    <Using Include="Headless.CSharp.Extensions" />
+    <Using Include="Headless.CSharp.Scripting" />
     <Using Include="Microsoft.CodeAnalysis" />
     <Using Include="Microsoft.CodeAnalysis.CSharp" />
     <Using Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
     <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
     <Using Include="Microsoft.CodeAnalysis.Scripting" />
-    <Using Include="Headless.CSharp.Extensions" />
-    <Using Include="Headless.CSharp.Scripting" />
     <Using Include="System" />
-    <Using Include="System.Diagnostics" />
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Collections.Immutable" />
+    <Using Include="System.Diagnostics" />
     <Using Include="System.Linq" />
     <Using Include="System.Reflection" />
+    <Using Include="System.Text" />
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
