@@ -1,10 +1,9 @@
-﻿#if NET8_0_OR_GREATER
-// ReSharper disable once CheckNamespace
-namespace Headless.CSharp;
+﻿// ReSharper disable once CheckNamespace
+namespace Headless.CSharp.Scripting;
 
 public static class CSharpScriptInterpreter
 {
-    private static readonly string[] _implicitImports = ["Headless.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
+    private static readonly string[] _implicitImports = ["Headless.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
     private static readonly Assembly[] _referenceAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetExportedTypes().Any(t => _implicitImports.Contains(t.Namespace))).ToArray();
 
     public static void CompileAndRun(string script)
@@ -27,12 +26,12 @@ public static class CSharpScriptInterpreter
             {
                 var paramOrder = 0;
                 // ReSharper disable once RedundantAssignment
-                implementationDescriptor = new(ScriptEntryPointType.ExpressionBody, entryExpression.Get<ParameterSyntax>().Concat(entryExpression.Get<ParameterListSyntax>().SelectMany(pl => pl.Parameters)).Select(p => new ScriptParameterDescriptor(++paramOrder, p.Identifier.Text, semanticModel.ResolveParameterConcreteType(p))).ToArray());
+                implementationDescriptor = new(MethodBodyImplementation.Expression, entryExpression.Get<ParameterSyntax>().Concat(entryExpression.Get<ParameterListSyntax>().SelectMany(pl => pl.Parameters)).Select(p => new MethodParameter(++paramOrder, p.Identifier.Text, semanticModel.ResolveParameterConcreteType(p))).ToArray());
             }
             else if (syntaxTree.GetRoot().Get<MethodDeclarationSyntax>().SingleOrDefault() is { } entryMethod)
             {
                 var paramOrder = 0;
-                implementationDescriptor = new(ScriptEntryPointType.MethodBody, entryMethod.Get<ParameterListSyntax>().SelectMany(pl => pl.Parameters).Select(p => new ScriptParameterDescriptor(++paramOrder, p.Identifier.Text, semanticModel.ResolveParameterConcreteType(p))).ToArray());
+                implementationDescriptor = new(MethodBodyImplementation.Block, entryMethod.Get<ParameterListSyntax>().SelectMany(pl => pl.Parameters).Select(p => new MethodParameter(++paramOrder, p.Identifier.Text, semanticModel.ResolveParameterConcreteType(p))).ToArray());
 
                 // If the script is a method, we need to inject a statement at the end to invoke the method. This does not apply to expression body scripts
                 var methodInvocation = SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(entryMethod.Identifier.ToFullString()))
@@ -79,4 +78,3 @@ public static class CSharpScriptInterpreter
         }
     }
 }
-#endif

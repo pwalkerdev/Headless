@@ -1,19 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Platform Agnostic -->
+  
   <PropertyGroup>
     <TargetFrameworks>net8.0;net48</TargetFrameworks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
+  </ItemGroup>
+  
+  <!-- .NET / .NET Core -->
+
   <PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='net8.0|AnyCPU'">
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
+    <Using Include="Microsoft.CodeAnalysis.Scripting" />
+    <Using Include="Headless.CSharp.Extensions" />
+    <Using Include="Headless.CSharp.Scripting" />
+    <Using Include="System" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Reflection" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.8.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <Compile Remove="netframework48\**\*" />
+    <None Include="netframework48\**\*" />
+  </ItemGroup>
+  
+  <!-- .NET Framework -->
 
   <PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='net48|AnyCPU'">
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.8.0" />
+  <ItemGroup Condition="'$(TargetFramework)'=='net48'">
+    <Compile Remove="net8\**\*" />
+    <None Include="net8\**\*" />
   </ItemGroup>
 
 </Project>

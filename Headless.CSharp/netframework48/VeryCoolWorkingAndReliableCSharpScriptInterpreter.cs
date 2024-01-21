@@ -1,5 +1,4 @@
-﻿#if NET48_OR_GREATER
-using System;
+﻿using System;
 using System.Threading;
 
 // ReSharper disable once CheckNamespace
@@ -30,4 +29,3 @@ namespace Headless.CSharp
         }
     }
 }
-#endif

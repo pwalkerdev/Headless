@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-// ReSharper disable once CheckNamespace
+﻿// ReSharper disable once CheckNamespace
 namespace Headless.CSharp.Extensions;
 
 internal static class DiagnosticExtensions
@@ -13,4 +12,3 @@ internal static class DiagnosticExtensions
 
     public static string Summarise(this ImmutableArray<Diagnostic> results) => new System.Text.StringBuilder(results.Length).AppendJoin(Environment.NewLine, results).ToString();
 }
-#endif
