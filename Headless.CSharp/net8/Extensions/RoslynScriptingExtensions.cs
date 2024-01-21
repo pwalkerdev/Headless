@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-// ReSharper disable once CheckNamespace
+﻿// ReSharper disable once CheckNamespace
 namespace Headless.CSharp.Extensions;
 
 public static class RoslynScriptingExtensions
@@ -15,4 +14,3 @@ public static class RoslynScriptingExtensions
     }
     public static Type? ResolveParameterConcreteType(this SemanticModel semanticModel, BaseParameterSyntax paramSyntax) => semanticModel.ResolveParameterConcreteTypeName(paramSyntax) is { Length: > 0 } tn ? Type.GetType(tn) : null;
 }
-#endif
