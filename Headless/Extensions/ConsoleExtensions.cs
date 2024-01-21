@@ -1,4 +1,4 @@
-﻿namespace HeadlessNetCore.Extensions;
+﻿namespace Headless.Extensions;
 
 internal static class ConsoleExtensions
 {

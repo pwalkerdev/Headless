@@ -1,6 +1,6 @@
 ﻿#if NET8_0_OR_GREATER
 // ReSharper disable once CheckNamespace
-namespace Headless.Scripting;
+namespace Headless.CSharp;
 
 public enum ScriptEntryPointType
 {

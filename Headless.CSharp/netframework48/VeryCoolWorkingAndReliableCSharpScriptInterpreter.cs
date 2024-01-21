@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 
 // ReSharper disable once CheckNamespace
-namespace Headless.Scripting
+namespace Headless.CSharp
 {
     public static class VeryCoolWorkingAndReliableCSharpScriptInterpreter
     {

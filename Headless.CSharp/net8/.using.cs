@@ -4,7 +4,7 @@ global using Microsoft.CodeAnalysis.CSharp;
 global using Microsoft.CodeAnalysis.CSharp.Scripting;
 global using Microsoft.CodeAnalysis.CSharp.Syntax;
 global using Microsoft.CodeAnalysis.Scripting;
-global using Headless.Scripting.Extensions;
+global using Headless.CSharp.Extensions;
 global using System;
 global using System.Diagnostics;
 global using System.Collections.Generic;

@@ -1,6 +1,6 @@
 ﻿#if NET8_0_OR_GREATER
 // ReSharper disable once CheckNamespace
-namespace Headless.Scripting.Extensions;
+namespace Headless.CSharp.Extensions;
 
 internal static class DiagnosticExtensions
 {
