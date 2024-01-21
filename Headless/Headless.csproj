@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Headless.Scripting\Headless.Scripting.csproj" />
+    <ProjectReference Include="..\Headless.CSharp\Headless.CSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="HeadlessNetCore.Extensions" />
+    <Using Include="Headless.Extensions" />
   </ItemGroup>
 
 </Project>

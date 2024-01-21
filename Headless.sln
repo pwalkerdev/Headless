@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessNetCore", "HeadlessNetCore\HeadlessNetCore.csproj", "{377916CE-864A-4830-BC80-A02D2642B1E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headless", "Headless\Headless.csproj", "{377916CE-864A-4830-BC80-A02D2642B1E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headless.Scripting", "Headless.Scripting\Headless.Scripting.csproj", "{A1C57510-5FAA-40E1-A401-16D0C506CA10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headless.CSharp", "Headless.CSharp\Headless.CSharp.csproj", "{A1C57510-5FAA-40E1-A401-16D0C506CA10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
