@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Headless.Extensions" />
   </ItemGroup>
 
