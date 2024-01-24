@@ -1,6 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace
 namespace Headless.CSharp.Scripting;
 
+[SupportedLanguages("CSharp")]
 public class CSharpScriptInterpreter : IReadScripts, IRunScripts
 {
     private static readonly string[] _implicitImports = ["Headless.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];

@@ -4,6 +4,7 @@
   
   <PropertyGroup>
     <TargetFrameworks>net8.0;net48</TargetFrameworks>
+    <AssemblyName>Headless.CSharp.$(TargetFramework)</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
