@@ -19,7 +19,7 @@ namespace Headless.Core
             //if (all.Count == 1)
             //    return all.ElementAt(0).Key;
 
-            return ScriptCompilers.Select(sc => new { Instance = sc, Supports = sc.GetType().GetCustomAttribute<SupportedLanguageAttribute>() }).FirstOrDefault(info => info.Supports.Name == language && info.Supports.Version == languageVersion && info.Supports.Runtime == runtime)?.Instance;
+            return ScriptCompilers.Select(sc => new { Instance = sc, Supports = sc.GetType().GetCustomAttributes<SupportedLanguageAttribute>() }).FirstOrDefault(info => info.Supports.Any(sla => sla.Name == language && sla.Version == languageVersion && sla.Runtime == runtime))?.Instance;
         }
 
         public IRunScripts ResolveInvoker(string language, string languageVersion = "latest", string runtime = "any")
@@ -29,7 +29,7 @@ namespace Headless.Core
             //if (all.Count == 1)
             //    return all.ElementAt(0).Key;
 
-            return ScriptInvokers.Select(sc => new { Instance = sc, Supports = sc.GetType().GetCustomAttribute<SupportedLanguageAttribute>() }).FirstOrDefault(info => info.Supports.Name == language && info.Supports.Version == languageVersion && info.Supports.Runtime == runtime)?.Instance;
+            return ScriptInvokers.Select(sc => new { Instance = sc, Supports = sc.GetType().GetCustomAttributes<SupportedLanguageAttribute>() }).FirstOrDefault(info => info.Supports.Any(sla => sla.Name == language && sla.Version == languageVersion && sla.Runtime == runtime))?.Instance;
         }
 
         private static Type[] AllExportedTypes { get; } = Directory.EnumerateFiles(AppDomain.CurrentDomain.BaseDirectory, "Headless.*.dll", SearchOption.TopDirectoryOnly).SelectMany(ass => Assembly.LoadFrom(ass).ExportedTypes.Where(t => t.IsClass && !t.IsAbstract)).ToArray();
