@@ -20,8 +20,16 @@ switch (args.Length)
 if (script.Length > 0)
 {
     var headless = new Headless.Core.HeadlessService();
+
     var compileResult = await headless.ResolveCompiler("CSharp").Compile(script.ToString());
-    var invokeResult = await  headless.ResolveInvoker("CSharp").Run(compileResult);
+    var consoleWriter = compileResult.IsSuccess ? Console.Out : Console.Error;
+    consoleWriter.WriteLine(compileResult.Messages);
+    if (compileResult.IsSuccess)
+    {
+        var invokeResult = await headless.ResolveInvoker("CSharp").Run<object>(compileResult);
+        consoleWriter = invokeResult.IsSuccess ? Console.Out : Console.Error;
+        consoleWriter.WriteLine(invokeResult.Messages);
+    }
 }
 else
     Console.WriteLine("Failed to receive script from caller!");
