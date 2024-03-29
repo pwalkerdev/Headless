@@ -1,5 +1,5 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace Headless.CSharp.Extensions;
+namespace Headless.Targetting.CSharp.Extensions;
 
 internal static class DiagnosticExtensions
 {

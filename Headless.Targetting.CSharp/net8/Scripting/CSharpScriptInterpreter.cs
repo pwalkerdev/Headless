@@ -1,11 +1,11 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace Headless.CSharp.Scripting;
+namespace Headless.Targetting.CSharp.Scripting;
 
 [SupportedLanguage("CSharp")]
 [SupportedLanguage("CSharp", runtime: "net8.0")]
 public class CSharpScriptInterpreter : IReadScripts, IRunScripts
 {
-    private static readonly string[] _implicitImports = ["Headless.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
+    private static readonly string[] _implicitImports = ["Headless.Targetting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
     private static readonly Assembly[] _referenceAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetExportedTypes().Any(t => _implicitImports.Contains(t.Namespace))).ToArray();
 
     public async Task<ICompileResult> Compile(string script)
@@ -49,11 +49,11 @@ public class CSharpScriptInterpreter : IReadScripts, IRunScripts
                 throw new InvalidOperationException("Unable to determine script entry point -- eventually this won't be a problem... But for now scripts need to be written as a single method or expression body. Local methods are supported");
 
             var roslynAnalysis = roslynScript.Compile();
-            return CompileResult.Create(roslynAnalysis.All(msg => msg.Severity < DiagnosticSeverity.Error), output.AppendJoin(Environment.NewLine, roslynAnalysis), roslynScript);
+            return await Task.FromResult(CompileResult.Create(roslynAnalysis.All(msg => msg.Severity < DiagnosticSeverity.Error), output.AppendJoin(Environment.NewLine, roslynAnalysis), roslynScript));
         }
         catch (Exception e)
         {
-            return CompileResult.Create(false, output.AppendLine($"Exception: {e.Message}"), roslynScript);
+            return await Task.FromResult(CompileResult.Create(false, output.AppendLine($"Exception: {e.Message}"), roslynScript));
         }
     }
 

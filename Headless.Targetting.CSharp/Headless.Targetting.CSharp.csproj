@@ -26,8 +26,8 @@
     <None Include="netframework48\**\*" />
     
     <Using Include="Headless.Core" />
-    <Using Include="Headless.CSharp.Extensions" />
-    <Using Include="Headless.CSharp.Scripting" />
+    <Using Include="Headless.Targetting.CSharp.Extensions" />
+    <Using Include="Headless.Targetting.CSharp.Scripting" />
     <Using Include="Microsoft.CodeAnalysis" />
     <Using Include="Microsoft.CodeAnalysis.CSharp" />
     <Using Include="Microsoft.CodeAnalysis.CSharp.Scripting" />

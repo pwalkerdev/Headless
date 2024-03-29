@@ -1,5 +1,5 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace Headless.CSharp.Framework;
+namespace Headless.Targetting.CSharp.Framework;
 
 public static class ObjectExtensions
 {
