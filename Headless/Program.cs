@@ -1,21 +1,22 @@
-﻿var script = new System.Text.StringBuilder();
+﻿var host = Host.CreateDefaultBuilder()
+    .ConfigureAppConfiguration(config => config.AddCommandLine(args, new Dictionary<string, string>
+    {
+        { "-m", "mode" },
+        { "-s", "script" },
+        { "-t", "postamble" }
+    }))
+    .ConfigureServices((context, services) =>
+    {
+        services.Configure<CommandLineOptions>(context.Configuration);
+    })
+    .Build();
 
-switch (args.Length)
-{
-    case 1:
-        script.Append(args[0]);
-        break;
-    case 2:
-        if (args[0] == "stream" && args[1] is { Length: > 0 } token)
-        {
-            while (Console.ReadLine() is { } ln && ln != token)
-                script.AppendLine(ln);
+var services = host.Services;
+var options = services.GetRequiredService<IOptions<CommandLineOptions>>().Value;
+var script = options.Mode == ScriptInputMode.Stream ? new System.Text.StringBuilder() : new System.Text.StringBuilder(options.Script);
 
-            // Removes the token from the console output... Nothing really wrong with it being there but idk it looks like it doesn't belong.
-            ConsoleExtensions.BlankOutLastLine();
-        }
-        break;
-}
+while (options.Mode == ScriptInputMode.Stream && Console.ReadLine() is { } ln && ln != options.Postamble)
+    script.AppendLine(ln);
 
 if (script.Length > 0)
 {
@@ -33,3 +34,16 @@ if (script.Length > 0)
 }
 else
     Console.WriteLine("Failed to receive script from caller!");
+
+public enum ScriptInputMode
+{
+    CommandLine,
+    Stream
+}
+
+public class CommandLineOptions
+{
+    public ScriptInputMode Mode { get; set; }
+    public string Script { get; set; } = string.Empty;
+    public string Postamble { get; set; } = string.Empty;
+}
