@@ -8,11 +8,16 @@
     <TargetFrameworks>net8.0;net48</TargetFrameworks>
     <PackageId>$(MSBuildProjectName)</PackageId> <!-- NOTE: This _must_ be set explicitly, otherwise it will default to AssemblyName which is different for each target. Sounds harmless enough but it will break the build, throw vague errors & send you on a wild goose chase for an hour 🙃 -->
     <AssemblyName>$(MSBuildProjectName).$(TargetFramework)</AssemblyName>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /y $(OutDir) $(ProjectDir)\..\Headless\bin\$(Configuration)\net8.0" />
+  </Target>
   
   <!-- .NET / .NET Core -->
 

@@ -4,8 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless", "Headless\Headless.csproj", "{377916CE-864A-4830-BC80-A02D2642B1E6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A1C57510-5FAA-40E1-A401-16D0C506CA10} = {A1C57510-5FAA-40E1-A401-16D0C506CA10}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headless.Core", "Headless.Core\Headless.Core.csproj", "{F6416F8D-71AB-46D7-8BC1-A538A9E463C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless.Core", "Headless.Core\Headless.Core.csproj", "{F6416F8D-71AB-46D7-8BC1-A538A9E463C4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless.Targetting.CSharp", "Headless.Targetting.CSharp\Headless.Targetting.CSharp.csproj", "{A1C57510-5FAA-40E1-A401-16D0C506CA10}"
 EndProject
