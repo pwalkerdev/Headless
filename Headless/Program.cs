@@ -13,7 +13,7 @@
 
 var services = host.Services;
 var options = services.GetRequiredService<IOptions<CommandLineOptions>>().Value;
-var script = options.Mode == ScriptInputMode.Stream ? new System.Text.StringBuilder() : new System.Text.StringBuilder(options.Script);
+var script = options.Mode == ScriptInputMode.Stream ? new StringBuilder() : new StringBuilder(options.Script);
 
 while (options.Mode == ScriptInputMode.Stream && Console.ReadLine() is { } ln && ln != options.Postamble)
     script.AppendLine(ln);
@@ -34,16 +34,3 @@ if (script.Length > 0)
 }
 else
     Console.WriteLine("Failed to receive script from caller!");
-
-public enum ScriptInputMode
-{
-    CommandLine,
-    Stream
-}
-
-public class CommandLineOptions
-{
-    public ScriptInputMode Mode { get; set; }
-    public string Script { get; set; } = string.Empty;
-    public string Postamble { get; set; } = string.Empty;
-}
