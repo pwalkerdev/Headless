@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Headless.Core.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Headless.Core
+namespace Headless.Core.Extensions
 {
     public static class HeadlessServiceCollectionExtensions
     {

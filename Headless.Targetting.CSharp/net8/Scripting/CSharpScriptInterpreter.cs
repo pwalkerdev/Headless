@@ -3,16 +3,21 @@ namespace Headless.Targetting.CSharp.Scripting;
 
 [SupportedTarget("CSharp")]
 [SupportedTarget("CSharp", runtime: "net8.0")]
-public class CSharpScriptInterpreter : IReadScripts, IRunScripts
+public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOptions) : IReadScripts, IRunScripts
 {
     private static readonly string[] _implicitImports = ["Headless.Targetting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
     private static readonly Assembly[] _referenceAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetExportedTypes().Any(t => _implicitImports.Contains(t.Namespace))).ToArray();
 
     public async Task<ICompileResult> Compile(string script)
     {
-        var roslynScriptOptions = ScriptOptions.Default.AddReferences(_referenceAssemblies).AddImports(_implicitImports);
-        var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
         var output = new StringBuilder();
+
+        var options = commandLineOptions.Value;
+        if (!Enum.TryParse<LanguageVersion>(options.LanguageVersion, true, out var languageVersion))
+            return await Task.FromResult(CompileResult.Create(false, output.AppendLine($"Unrecognised value: \"{options.LanguageVersion}\" specified for parameter: \"LanguageVersion\""), null));
+
+        var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).AddReferences(_referenceAssemblies).AddImports(_implicitImports);
+        var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
         try
         {
             var compilation = roslynScript.GetCompilation();
@@ -20,13 +25,13 @@ public class CSharpScriptInterpreter : IReadScripts, IRunScripts
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
             ScriptImplementationDescriptor implementationDescriptor;
 
-            if (syntaxTree.GetRoot().Get<GlobalStatementSyntax>().SelectMany(gss => gss.Get<ExpressionStatementSyntax>()).SingleOrDefault()?.Expression is { } entryExpression)
+            if ((await syntaxTree.GetRootAsync()).Get<GlobalStatementSyntax>().SelectMany(gss => gss.Get<ExpressionStatementSyntax>()).SingleOrDefault()?.Expression is { } entryExpression)
             {
                 var paramOrder = 0;
                 // ReSharper disable once RedundantAssignment
                 implementationDescriptor = new(MethodBodyImplementation.Expression, entryExpression.Get<ParameterSyntax>().Concat(entryExpression.Get<ParameterListSyntax>().SelectMany(pl => pl.Parameters)).Select(p => new MethodParameter(++paramOrder, p.Identifier.Text, semanticModel.ResolveParameterConcreteType(p))).ToArray());
             }
-            else if (syntaxTree.GetRoot().Get<MethodDeclarationSyntax>().SingleOrDefault() is { } entryMethod)
+            else if ((await syntaxTree.GetRootAsync()).Get<MethodDeclarationSyntax>().SingleOrDefault() is { } entryMethod)
             {
                 var paramOrder = 0;
                 implementationDescriptor = new(MethodBodyImplementation.Block, entryMethod.Get<ParameterListSyntax>().SelectMany(pl => pl.Parameters).Select(p => new MethodParameter(++paramOrder, p.Identifier.Text, semanticModel.ResolveParameterConcreteType(p))).ToArray());
@@ -42,8 +47,8 @@ public class CSharpScriptInterpreter : IReadScripts, IRunScripts
                         .WithSemicolonToken(SyntaxFactory.Token(SyntaxTriviaList.Empty, SyntaxKind.SemicolonToken, string.Empty, string.Empty, SyntaxTriviaList.Empty)))
                     .WithLeadingTrivia(SyntaxFactory.Whitespace(Environment.NewLine));
 
-                syntaxTree = syntaxTree.WithRootAndOptions(syntaxTree.GetRoot().InsertNodesAfter(entryMethod, new [] { globalStatement }), syntaxTree.Options);
-                roslynScript = CSharpScript.Create(syntaxTree.GetRoot().ToFullString(), roslynScriptOptions);
+                syntaxTree = syntaxTree.WithRootAndOptions((await syntaxTree.GetRootAsync()).InsertNodesAfter(entryMethod, new [] { globalStatement }), syntaxTree.Options);
+                roslynScript = CSharpScript.Create((await syntaxTree.GetRootAsync()).ToFullString(), roslynScriptOptions);
             }
             else
                 throw new InvalidOperationException("Unable to determine script entry point -- eventually this won't be a problem... But for now scripts need to be written as a single method or expression body. Local methods are supported");

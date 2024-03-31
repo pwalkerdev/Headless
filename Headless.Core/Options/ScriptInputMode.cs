@@ -1,4 +1,4 @@
-﻿namespace Headless.Options;
+﻿namespace Headless.Core.Options;
 
 public enum ScriptInputMode
 {
