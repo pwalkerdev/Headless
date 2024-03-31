@@ -20,9 +20,9 @@ namespace Headless.Core.Extensions
                 .SelectMany(ass => ass.ExportedTypes.Where(type => type.IsClass && !type.IsAbstract).Where(IsHeadlessService))
                 .Select(type => new
                 {
-                    @Type = type,
+                    Type = type,
                     ImplementedInterfaces = type.GetInterfaces().Where(HeadlessServiceTypes.Contains).ToArray(),
-                    SupportedTargets = type.GetCustomAttributes<SupportedTargetAttribute>().Select(st => st.Key)
+                    SupportedTargets = type.GetCustomAttribute<SupportedTargetsAttribute>().Keys.ToArray()
                 })
                 .ToArray();
 
@@ -32,7 +32,7 @@ namespace Headless.Core.Extensions
             foreach (var serviceInfo in serviceInfos)
                 foreach (var @interface in serviceInfo.ImplementedInterfaces)
                     foreach (var key in serviceInfo.SupportedTargets)
-                        _ = services.Any(s => s.IsKeyedService && s.KeyedImplementationType == serviceInfo.Type) ? services.AddKeyedScoped(@interface, key, (p, key2) => p.GetKeyedServices(serviceInfo.ImplementedInterfaces[0], key2).Single()) : services.AddKeyedScoped(@interface, key, serviceInfo.Type);
+                        _ = services.Any(s => s.IsKeyedService && s.KeyedImplementationType == serviceInfo.Type) ? services.AddKeyedScoped(@interface, key, (p, _) => p.GetKeyedServices(serviceInfo.ImplementedInterfaces[0], serviceInfo.SupportedTargets[0]).Single()) : services.AddKeyedScoped(@interface, key, serviceInfo.Type);
 
             return services;
         }

@@ -1,4 +1,6 @@
-﻿namespace Headless.Core.Options;
+﻿using Headless.Core.Attributes;
+
+namespace Headless.Core.Options;
 
 public class CommandLineOptions
 {
@@ -9,5 +11,5 @@ public class CommandLineOptions
     public string Language { get; set; } = string.Empty;
     public string LanguageVersion { get; set; } = "latest";
     public string RuntimeVersion { get; set; } = "any";
-    public string TargetKey => $"{Language}.{LanguageVersion}.{RuntimeVersion}";
+    public string TargetKey => $"{Language}{SupportedTargetsAttribute.KeyDelimiter}{LanguageVersion}{SupportedTargetsAttribute.KeyDelimiter}{RuntimeVersion}";
 }
