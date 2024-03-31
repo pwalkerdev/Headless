@@ -23,6 +23,9 @@ var script = options.Mode == ScriptInputMode.Stream ? new StringBuilder() : new 
 while (options.Mode == ScriptInputMode.Stream && Console.ReadLine() is { } ln && ln != options.Postamble)
     script.AppendLine(ln);
 
+if (options.Mode == ScriptInputMode.Stream)
+    ConsoleExtensions.BlankOutLastLine();
+
 if (script.Length > 0)
 {
     var compileResult = await services.GetRequiredKeyedService<IReadScripts>(options.TargetKey).Compile(script.ToString());
