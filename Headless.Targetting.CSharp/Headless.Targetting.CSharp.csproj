@@ -31,6 +31,8 @@
     <None Include="netframework48\**\*" />
     
     <Using Include="Headless.Core" />
+    <Using Include="Headless.Core.Attributes" />
+    <Using Include="Headless.Core.Options" />
     <Using Include="Headless.Targetting.CSharp.Extensions" />
     <Using Include="Headless.Targetting.CSharp.Scripting" />
     <Using Include="Microsoft.CodeAnalysis" />
@@ -38,6 +40,7 @@
     <Using Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
     <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
     <Using Include="Microsoft.CodeAnalysis.Scripting" />
+    <Using Include="Microsoft.Extensions.Options" />
     <Using Include="System" />
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Collections.Immutable" />
@@ -49,6 +52,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.9.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
   </ItemGroup>
   
   <!-- .NET Framework -->
