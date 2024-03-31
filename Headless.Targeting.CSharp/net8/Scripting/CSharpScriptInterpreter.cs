@@ -1,11 +1,11 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace Headless.Targetting.CSharp.Scripting;
+namespace Headless.Targeting.CSharp.Scripting;
 
 [SupportedTarget("CSharp")]
 [SupportedTarget("CSharp", runtime: "net8.0")]
 public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOptions) : IReadScripts, IRunScripts
 {
-    private static readonly string[] _implicitImports = ["Headless.Targetting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
+    private static readonly string[] _implicitImports = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
     private static readonly Assembly[] _referenceAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetExportedTypes().Any(t => _implicitImports.Contains(t.Namespace))).ToArray();
 
     public async Task<ICompileResult> Compile(string script)

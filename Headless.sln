@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless", "Headless\Headle
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless.Core", "Headless.Core\Headless.Core.csproj", "{F6416F8D-71AB-46D7-8BC1-A538A9E463C4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless.Targetting.CSharp", "Headless.Targetting.CSharp\Headless.Targetting.CSharp.csproj", "{A1C57510-5FAA-40E1-A401-16D0C506CA10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless.Targeting.CSharp", "Headless.Targeting.CSharp\Headless.Targeting.CSharp.csproj", "{A1C57510-5FAA-40E1-A401-16D0C506CA10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -9,7 +9,7 @@ namespace Headless.Core.Extensions
 {
     public static class HeadlessServiceCollectionExtensions
     {
-        private const string TargetingDllWildcard = "Headless.Targetting.*.dll";
+        private const string TargetingDllWildcard = "Headless.Targeting.*.dll";
         private static readonly Type[] HeadlessServiceTypes = [typeof(IReadScripts), typeof(IRunScripts)];
         private static readonly Func<Type, bool> IsHeadlessService = type => type.GetInterfaces().Any(HeadlessServiceTypes.Contains);
 
