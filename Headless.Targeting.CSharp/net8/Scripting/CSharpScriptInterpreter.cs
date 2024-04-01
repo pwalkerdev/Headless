@@ -2,7 +2,7 @@
 namespace Headless.Targeting.CSharp.Scripting;
 
 [SupportedTargets("CSharp", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
-public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOptions) : IReadScripts, IRunScripts
+public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOptions) : IScriptCompiler, IScriptInvoker
 {
     private static readonly string[] _implicitImports = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
     private static readonly Assembly[] _referenceAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetExportedTypes().Any(t => _implicitImports.Contains(t.Namespace))).ToArray();

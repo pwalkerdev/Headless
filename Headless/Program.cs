@@ -28,12 +28,12 @@ if (options.Mode == ScriptInputMode.Stream)
 
 if (script.Length > 0)
 {
-    var compileResult = await services.GetRequiredKeyedService<IReadScripts>(options.TargetKey).Compile(script.ToString());
+    var compileResult = await services.GetRequiredKeyedService<IScriptCompiler>(options.TargetKey).Compile(script.ToString());
     var consoleWriter = compileResult.IsSuccess ? Console.Out : Console.Error;
     consoleWriter.WriteLine(compileResult.Messages);
     if (compileResult.IsSuccess)
     {
-        var invokeResult = await services.GetRequiredKeyedService<IRunScripts>(options.TargetKey).Run<object>(compileResult);
+        var invokeResult = await services.GetRequiredKeyedService<IScriptInvoker>(options.TargetKey).Run<object>(compileResult);
         consoleWriter = invokeResult.IsSuccess ? Console.Out : Console.Error;
         consoleWriter.WriteLine(invokeResult.Messages);
     }

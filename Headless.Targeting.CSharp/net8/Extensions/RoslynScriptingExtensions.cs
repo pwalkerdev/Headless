@@ -1,7 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace
 namespace Headless.Targeting.CSharp.Extensions;
 
-public static class RoslynScriptingExtensions
+internal static class RoslynScriptingExtensions
 {
     public static IEnumerable<TChildTypeFilter> Get<TChildTypeFilter>(this SyntaxNode node) where TChildTypeFilter : SyntaxNode => node.ChildNodes().OfType<TChildTypeFilter>();
 
