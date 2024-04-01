@@ -8,9 +8,7 @@ public interface IResult
 
 public interface ICompileResult : IResult;
 
-public interface IInvocationResult : IResult;
-
-public interface IInvocationResult<out TResult> : IInvocationResult
+public interface IInvocationResult<out TResult> : IResult
 {
-    TResult Result { get; }
+    TResult? Result { get; }
 }
