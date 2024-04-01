@@ -23,8 +23,11 @@ var script = options.Mode == ScriptInputMode.Stream ? new StringBuilder() : new 
 while (options.Mode == ScriptInputMode.Stream && Console.ReadLine() is { } ln && ln != options.Postamble)
     script.AppendLine(ln);
 
-if (options.Mode == ScriptInputMode.Stream)
-    ConsoleExtensions.BlankOutLastLine();
+if (options.Mode == ScriptInputMode.Stream) // If the input mode was set to stream, the "finish" token will be written to the console at the bottom of the script. This will overwrite it
+{
+    ConsoleExtensions.BlankOutLastLine(options.Postamble.Length);
+    ConsoleExtensions.ShiftCursorUp(1);
+}
 
 if (script.Length > 0)
 {

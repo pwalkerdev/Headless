@@ -2,13 +2,15 @@
 
 internal static class ConsoleExtensions
 {
-    public static void BlankOutLine(int index)
+    public static void BlankOutLine(int index, int width)
     {
         var startingPosition = (Console.CursorLeft, Console.CursorTop);
         Console.SetCursorPosition(0, index);
-        Console.Write(new string(' ', Console.BufferWidth)); 
+        Console.Write(new string(' ', width)); 
         Console.SetCursorPosition(startingPosition.CursorLeft, startingPosition.CursorTop);
     }
 
-    public static void BlankOutLastLine() => BlankOutLine(Console.CursorTop - 1);
+    public static void BlankOutLastLine(int? width = null) => BlankOutLine(Console.CursorTop - 1, width ?? Console.BufferWidth);
+
+    public static void ShiftCursorUp(int linesToMoveUp) => Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - linesToMoveUp);
 }

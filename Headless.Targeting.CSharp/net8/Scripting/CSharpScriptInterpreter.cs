@@ -78,7 +78,7 @@ public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOpt
             var result = (TResult?)@delegate?.Invoke(delegateType, null);
             sw.Stop();
 
-            messages.AppendLine($"{string.Join("", Enumerable.Repeat('-', 13))}OUTPUT{string.Join("", Enumerable.Repeat('-', 13))}").AppendLine();
+            messages.AppendLine().AppendLine($"{string.Join("", Enumerable.Repeat('-', 13))}OUTPUT{string.Join("", Enumerable.Repeat('-', 13))}").AppendLine();
             messages.AppendLine($"RESULT VALUE: {result}");
             messages.AppendLine($"TIME ELAPSED: {TimeSpan.FromTicks(sw.ElapsedTicks).TotalSeconds:N4}s").AppendLine();
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,15 +23,16 @@ public static class HeadlessServiceCollectionExtensions
             {
                 Type = type,
                 ImplementedInterfaces = type.GetInterfaces().Where(HeadlessServiceTypes.Contains).ToArray(),
-                SupportedTargets = type.GetCustomAttribute<SupportedTargetsAttribute>().Keys.ToArray()
+                SupportedTargets = type.GetCustomAttribute<SupportedTargetsAttribute>()?.Keys.ToArray()
             })
+            .Where(infos => infos.SupportedTargets?.Any() == true)
             .ToArray();
         
         // This will register all services by their interface and keyed by their supported target attributes
         // If a service inherits more than 1 recognised interface and/or more than 1 supported target,
         // all requests for any of the matching criteria will return the same instance per DI scope
-        foreach (var (serviceInfo, @interface, key) in serviceInfos.SelectMany(serviceInfo => serviceInfo.ImplementedInterfaces.SelectMany(@interface => serviceInfo.SupportedTargets.Select(key => (serviceInfo, @interface, key)))))
-            _ = services.Any(s => s.IsKeyedService && s.KeyedImplementationType == serviceInfo.Type) ? services.AddKeyedScoped(@interface, key, (p, _) => p.GetKeyedServices(serviceInfo.ImplementedInterfaces[0], serviceInfo.SupportedTargets[0]).Single()) : services.AddKeyedScoped(@interface, key, serviceInfo.Type);
+        foreach (var (serviceInfo, @interface, key) in serviceInfos.SelectMany(serviceInfo => serviceInfo.ImplementedInterfaces.SelectMany(@interface => serviceInfo.SupportedTargets!.Select(key => (serviceInfo, @interface, key)))))
+            _ = services.Any(s => s.IsKeyedService && s.KeyedImplementationType == serviceInfo.Type) ? services.AddKeyedScoped(@interface, key, (p, _) => p.GetKeyedServices(serviceInfo.ImplementedInterfaces[0], serviceInfo.SupportedTargets![0]).Single(s => s != null)!) : services.AddKeyedScoped(@interface, key, serviceInfo.Type);
 
         return services;
     }
