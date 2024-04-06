@@ -5,7 +5,7 @@ namespace Headless.Targeting.CSharp.Scripting;
 public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOptions) : IScriptCompiler, IScriptInvoker
 {
     private static readonly string[] _implicitImports = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
-    private static readonly Assembly[] _referenceAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetExportedTypes().Any(t => _implicitImports.Contains(t.Namespace))).ToArray();
+    private static readonly MetadataReference[] _assemblyReferences = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.ExportedTypes.Any(t => _implicitImports.Contains(t.Namespace))).Select(RoslynScriptingExtensions.GetMetadataReference).OfType<MetadataReference>().ToArray();
 
     public async Task<ICompileResult> Compile(string script)
     {
@@ -14,7 +14,7 @@ public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOpt
         if (!options.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
             return CompileResult.Create(false, $"Unrecognised value: \"{options.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
 
-        var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).AddReferences(_referenceAssemblies).AddImports(_implicitImports);
+        var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(_assemblyReferences).WithImports(_implicitImports);
         var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
         try
         {

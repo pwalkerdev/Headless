@@ -3,25 +3,22 @@
   <!-- Platform Agnostic -->
   
   <PropertyGroup>
+    <TargetFrameworks>net8.0;net48</TargetFrameworks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies> <!-- NOTE: Without this, the packages referenced by this project may not be copied to the build output folder - some files are assumed to be on the machine already, but that is a dangerous assumption -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages> <!-- NOTE: Remove/Change this if support for client localisation is ever added (probably not) -->
-    <TargetFrameworks>net8.0;net48</TargetFrameworks>
     <PackageId>$(MSBuildProjectName)</PackageId> <!-- NOTE: This _must_ be set explicitly, otherwise it will default to AssemblyName which is different for each target. Sounds harmless enough but it will break the build, throw vague errors & send you on a wild goose chase for an hour 🙃 -->
     <AssemblyName>$(MSBuildProjectName).$(TargetFramework)</AssemblyName>
     <DebugType>embedded</DebugType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /y $(OutDir) $(ProjectDir)\..\Headless\bin\$(Configuration)\net8.0" />
-  </Target>
   
   <!-- .NET / .NET Core -->
 
-  <PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='net8.0|AnyCPU'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -47,6 +44,7 @@
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq" />
     <Using Include="System.Reflection" />
+    <Using Include="System.Reflection.Metadata" />
     <Using Include="System.Text" />
 
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
@@ -57,7 +55,7 @@
   
   <!-- .NET Framework -->
 
-  <PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='net48|AnyCPU'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net48'">
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net48'">

@@ -12,5 +12,8 @@ internal static class RoslynScriptingExtensions
 
         return symbol.SpecialType == SpecialType.None ? symbol.ToString() : symbol.SpecialType.ToString().Replace('_', '.');
     }
+
     public static Type? ResolveParameterConcreteType(this SemanticModel semanticModel, BaseParameterSyntax paramSyntax) => semanticModel.ResolveParameterConcreteTypeName(paramSyntax) is { Length: > 0 } tn ? Type.GetType(tn) : null;
+
+    public static unsafe MetadataReference? GetMetadataReference(this Assembly assembly) => assembly.TryGetRawMetadata(out var blob, out var length) ? AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length)).GetReference() : null;
 }
