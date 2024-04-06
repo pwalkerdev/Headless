@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <DebugType>embedded</DebugType>
+    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,11 +17,30 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
+
+    <EmbeddedResource Include="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <Link>%(Filename)%(Extension)</Link>
+      <LogicalName>%(Filename)%(Extension)</LogicalName>
+      <IsAssembly>true</IsAssembly>
+      <Visible>False</Visible>
+    </EmbeddedResource>
+    <EmbeddedResource Remove="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*Headless.Core.*" />
+
+    <!-- <Content Include="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IsAssembly>true</IsAssembly>
+      <PublishState>Default</PublishState>
+      <Visible>False</Visible>
+    </Content>
+    <Content Remove="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*Headless.Core.dll">
+    </Content> -->
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Headless.Extensions" />
     <Using Include="Headless.Core" />
+    <Using Include="Headless.Extensions" />
     <Using Include="Headless.Core.Extensions" />
     <Using Include="Headless.Core.Options" />
     <Using Include="Microsoft.Extensions.Configuration" />

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,22 +9,45 @@ namespace Headless.Core.Extensions;
 
 public static class HeadlessServiceCollectionExtensions
 {
-    private const string TargetingDllWildcard = "Headless.Targeting.*.dll";
+    private static readonly string[] TargetingDllIdentifiers = ["Headless.Targeting.", ".dll"];
     private static readonly Type[] HeadlessServiceTypes = [typeof(IScriptCompiler), typeof(IScriptInvoker)];
     private static readonly Func<Type, bool> IsHeadlessService = type => type.GetInterfaces().Any(HeadlessServiceTypes.Contains);
 
+    private static Assembly? ResolveHeadlessServiceAssembly(object? sender, ResolveEventArgs args)
+    {
+        if (AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(n => n.FullName == args.Name) is { } alreadyLoadedAssembly)
+            return alreadyLoadedAssembly;
+
+        var name = new AssemblyName(args.Name).Name;
+        var embeddedAssemblies = Assembly.GetEntryAssembly()?.GetManifestResourceNames().ToArray() ?? Array.Empty<string>();
+        if (embeddedAssemblies.FirstOrDefault(n => n == $"{name}.dll") is { Length: > 0 } assemblyResourceName
+            && Assembly.GetEntryAssembly()?.GetManifestResourceStream(assemblyResourceName) is { Length: > 0 } stream)
+        {
+            var ms = new MemoryStream();
+            stream.CopyTo(ms);
+            return Assembly.Load(ms.ToArray());
+        }
+
+        var assemblyFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{name}.dll");
+        return File.Exists(assemblyFileName) ? Assembly.LoadFrom(assemblyFileName) : null;
+    }
+
     public static IServiceCollection AddHeadlessService(this IServiceCollection services)
     {
-        var serviceInfos = Directory.EnumerateFiles(AppDomain.CurrentDomain.BaseDirectory, TargetingDllWildcard)
-            .Select(Assembly.LoadFrom)
-            .SelectMany(ass => ass.ExportedTypes.Where(type => type.IsClass && !type.IsAbstract).Where(IsHeadlessService))
+        AppDomain.CurrentDomain.AssemblyResolve += ResolveHeadlessServiceAssembly;
+
+        var serviceInfos = Assembly.GetCallingAssembly().GetManifestResourceNames()
+            .Where(name => name.StartsWith(TargetingDllIdentifiers[0]) && name.EndsWith(TargetingDllIdentifiers[1]))
+            .Select(Path.GetFileNameWithoutExtension)
+            .Select(Assembly.Load!)
+            .SelectMany(ass => ass.ExportedTypes.Where(type => type is { IsClass: true, IsAbstract: false }).Where(IsHeadlessService))
             .Select(type => new
             {
                 Type = type,
                 ImplementedInterfaces = type.GetInterfaces().Where(HeadlessServiceTypes.Contains).ToArray(),
                 SupportedTargets = type.GetCustomAttribute<SupportedTargetsAttribute>()?.Keys.ToArray()
             })
-            .Where(infos => infos.SupportedTargets?.Any() == true)
+            .Where(infos => infos.SupportedTargets is { Length: > 0 })
             .ToArray();
         
         // This will register all services by their interface and keyed by their supported target attributes
