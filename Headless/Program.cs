@@ -18,16 +18,21 @@
 using var scope = host.Services.CreateScope();
 var services = scope.ServiceProvider;
 var options = services.GetRequiredService<IOptions<CommandLineOptions>>().Value;
-var script = options.Mode == ScriptInputMode.Stream ? new StringBuilder() : new StringBuilder(options.Script);
-
-while (options.Mode == ScriptInputMode.Stream && Console.ReadLine() is { } ln && ln != options.Postamble)
-    script.AppendLine(ln);
-
-if (options.Mode == ScriptInputMode.Stream) // If the input mode was set to stream, the "finish" token will be written to the console at the bottom of the script. This will overwrite it
+var script = options.Mode switch
 {
-    ConsoleExtensions.BlankOutLastLine(options.Postamble.Length);
-    ConsoleExtensions.ShiftCursorUp(1);
-}
+    ScriptInputMode.File => new StringBuilder(File.ReadAllText(options.Script)),
+    ScriptInputMode.Stream => new Func<StringBuilder>(() =>
+    {
+        var result = new StringBuilder();
+        while (Console.ReadLine() is { } ln && ln != options.Postamble)
+            result.AppendLine(ln);
+        
+        ConsoleExtensions.BlankOutLastLine(options.Postamble.Length); // If the input is streamed, the "finish" token is written to the console at the end. This hides it
+        ConsoleExtensions.ShiftCursorUp(1);
+        return result;
+    })(),
+    _ => new StringBuilder(options.Script),
+};
 
 if (script.Length > 0)
 {

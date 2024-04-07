@@ -3,5 +3,6 @@
 public enum ScriptInputMode
 {
     CommandLine,
-    Stream
+    Stream,
+    File
 }
