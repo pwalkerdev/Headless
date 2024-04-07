@@ -20,5 +20,15 @@
             "console": "integratedTerminal",
             "stopAtEntry": false
         },
+        {
+            "name": "Re-Launch (Don't Compile)",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}${/}Headless${/}bin${/}Debug${/}net8.0${/}Headless.dll",
+            "args": ["-l", "CSharp", "-m", "stream", "-t", "asdf"],
+            "cwd": "${workspaceFolder}${/}Headless",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }
     ]
 }
