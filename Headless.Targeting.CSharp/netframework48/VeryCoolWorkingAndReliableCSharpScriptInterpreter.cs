@@ -1,9 +1,8 @@
-﻿#if NET48_OR_GREATER
-using System;
+﻿using System;
 using System.Threading;
 
 // ReSharper disable once CheckNamespace
-namespace Headless.Scripting
+namespace Headless.Targeting.CSharp
 {
     public static class VeryCoolWorkingAndReliableCSharpScriptInterpreter
     {
@@ -30,4 +29,3 @@ namespace Headless.Scripting
         }
     }
 }
-#endif

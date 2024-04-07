@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessNetCore", "HeadlessNetCore\HeadlessNetCore.csproj", "{377916CE-864A-4830-BC80-A02D2642B1E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless", "Headless\Headless.csproj", "{377916CE-864A-4830-BC80-A02D2642B1E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Headless.Scripting", "Headless.Scripting\Headless.Scripting.csproj", "{A1C57510-5FAA-40E1-A401-16D0C506CA10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless.Core", "Headless.Core\Headless.Core.csproj", "{F6416F8D-71AB-46D7-8BC1-A538A9E463C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Headless.Targeting.CSharp", "Headless.Targeting.CSharp\Headless.Targeting.CSharp.csproj", "{A1C57510-5FAA-40E1-A401-16D0C506CA10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{377916CE-864A-4830-BC80-A02D2642B1E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{377916CE-864A-4830-BC80-A02D2642B1E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{377916CE-864A-4830-BC80-A02D2642B1E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6416F8D-71AB-46D7-8BC1-A538A9E463C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6416F8D-71AB-46D7-8BC1-A538A9E463C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6416F8D-71AB-46D7-8BC1-A538A9E463C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6416F8D-71AB-46D7-8BC1-A538A9E463C4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1C57510-5FAA-40E1-A401-16D0C506CA10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1C57510-5FAA-40E1-A401-16D0C506CA10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1C57510-5FAA-40E1-A401-16D0C506CA10}.Release|Any CPU.ActiveCfg = Release|Any CPU
