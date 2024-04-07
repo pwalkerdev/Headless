@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Platform Agnostic -->
+  
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net48</TargetFrameworks>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies> <!-- NOTE: Without this, the packages referenced by this project may not be copied to the build output folder - some files are assumed to be on the machine already, but that is a dangerous assumption -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages> <!-- NOTE: Remove/Change this if support for client localisation is ever added (probably not) -->
+    <PackageId>$(MSBuildProjectName)</PackageId> <!-- NOTE: This _must_ be set explicitly, otherwise it will default to AssemblyName which is different for each target. Sounds harmless enough but it will break the build, throw vague errors & send you on a wild goose chase for an hour 🙃 -->
+    <AssemblyName>$(MSBuildProjectName).$(TargetFramework)</AssemblyName>
+    <DebugType>embedded</DebugType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
+  </ItemGroup>
+  
+  <!-- .NET / .NET Core -->
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <Compile Remove="netframework48\**\*" />
+    <None Include="netframework48\**\*" />
+    
+    <Using Include="Headless.Core" />
+    <Using Include="Headless.Core.Attributes" />
+    <Using Include="Headless.Core.Options" />
+    <Using Include="Headless.Targeting.CSharp.Extensions" />
+    <Using Include="Headless.Targeting.CSharp.Scripting" />
+    <Using Include="Microsoft.CodeAnalysis" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
+    <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
+    <Using Include="Microsoft.CodeAnalysis.Scripting" />
+    <Using Include="Microsoft.Extensions.Options" />
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Reflection" />
+    <Using Include="System.Reflection.Metadata" />
+    <Using Include="System.Text" />
+
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.9.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+  </ItemGroup>
+  
+  <!-- .NET Framework -->
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net48'">
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net48'">
+    <Compile Remove="net8\**\*" />
+    <None Include="net8\**\*" />
+  </ItemGroup>
+
+</Project>
