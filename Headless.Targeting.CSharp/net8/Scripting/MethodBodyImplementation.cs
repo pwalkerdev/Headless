@@ -1,7 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace
 namespace Headless.Targeting.CSharp.Scripting;
 
-public enum MethodBodyImplementation
+internal enum MethodBodyImplementation
 {
     Uninitialised,
     Block,

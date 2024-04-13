@@ -2,7 +2,7 @@
 namespace Headless.Targeting.CSharp.Scripting;
 
 [SupportedTargets("CSharp", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
-public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOptions) : IScriptCompiler, IScriptInvoker
+public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions) : IScriptCompiler, IScriptInvoker
 {
     private static readonly string[] _implicitImports = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
     private static readonly MetadataReference[] _assemblyReferences = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.ExportedTypes.Any(t => _implicitImports.Contains(t.Namespace))).Select(RoslynScriptingExtensions.GetMetadataReference).OfType<MetadataReference>().ToArray();
@@ -10,9 +10,8 @@ public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOpt
     public async Task<ICompileResult> Compile(string script)
     {
         // TODO: This method is in need of a re-work... Although it does work, I have some ideas to make it faster, more flexible and most importantly, easier to read. It was originally copied from a different project of mine and well yeah you will probably be able to tell from all the stuff it doesn't need to do.
-        var options = commandLineOptions.Value;
-        if (!options.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
-            return CompileResult.Create(false, $"Unrecognised value: \"{options.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
+        if (!commandLineOptions.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
+            return CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
 
         var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(_assemblyReferences).WithImports(_implicitImports);
         var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
@@ -60,7 +59,7 @@ public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOpt
         }
         catch (Exception e)
         {
-            return CompileResult.Create(false, $"Exception: {e.Message}", roslynScript);
+            return CompileResult.Create(false, $"ERROR: {e.Message}", roslynScript);
         }
     }
 
@@ -69,24 +68,17 @@ public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOpt
         if (compileResult is not CompileResult { IsSuccess: true, RoslynScript: { } rs })
             return InvocationResult<TResult?>.Create(false, "Unable to invoke script due to compilation errors!", default);
 
-        var messages = new StringBuilder();
         try
         {
-            var sw = Stopwatch.StartNew();
             var delegateType = (await rs.RunAsync()).ReturnValue;
             var @delegate = delegateType.GetType().GetMethod("Invoke");
             var result = (TResult?)@delegate?.Invoke(delegateType, null);
-            sw.Stop();
 
-            messages.AppendLine().AppendLine($"{string.Join("", Enumerable.Repeat('-', 13))}OUTPUT{string.Join("", Enumerable.Repeat('-', 13))}").AppendLine();
-            messages.AppendLine($"RESULT VALUE: {result}");
-            messages.AppendLine($"TIME ELAPSED: {TimeSpan.FromTicks(sw.ElapsedTicks).TotalSeconds:N4}s").AppendLine();
-
-            return InvocationResult<TResult?>.Create(true, messages, result);
+            return InvocationResult<TResult?>.Create(true, string.Empty, result);
         }
         catch (Exception e)
         {
-            return InvocationResult<TResult?>.Create(false, messages.AppendLine($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default);
+            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default);
         }
     }
 }
