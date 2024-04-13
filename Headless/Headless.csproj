@@ -26,6 +26,7 @@
       <Visible>False</Visible>
     </EmbeddedResource>
     <EmbeddedResource Remove="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*Headless.Core.*" />
+    <EmbeddedResource Remove="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*Microsoft.Extensions.*" />
 
     <!-- <Content Include="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*">
       <Link>%(Filename)%(Extension)</Link>
@@ -47,6 +48,7 @@
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Microsoft.Extensions.Hosting" />
     <Using Include="Microsoft.Extensions.Options" />
+    <Using Include="System.Diagnostics" />
     <Using Include="System.Text" />
   </ItemGroup>
 

@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies> <!-- NOTE: Without this, the packages referenced by this project may not be copied to the build output folder - some files are assumed to be on the machine already, but that is a dangerous assumption -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages> <!-- NOTE: Remove/Change this if support for client localisation is ever added (probably not) -->
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Esprima" />
+    <Using Include="Esprima.Ast" />
+    <Using Include="Esprima.Utils" />
+    <Using Include="Headless.Core" />
+    <Using Include="Headless.Core.Attributes" />
+    <Using Include="Headless.Core.Options" />
+    <Using Include="Jint" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jint" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
+  </ItemGroup>
+
+</Project>
