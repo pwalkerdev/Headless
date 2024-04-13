@@ -2,7 +2,8 @@
   "profiles": {
     "Headless": {
       "commandName": "Project",
-      "commandLineArgs": "-m stream -t asdf -l CSharp -lv 7"
+      //"commandLineArgs": "-m stream -t asdf -l JavaScript -lv latest"
+      "commandLineArgs": "-m stream -t asdf -l CSharp -lv latest"
     }
   }
 }
