@@ -1,12 +1,4 @@
-﻿using Esprima;
-using Esprima.Ast;
-using Esprima.Utils;
-using Headless.Core;
-using Headless.Core.Attributes;
-using Headless.Core.Options;
-using Jint;
-
-namespace Headless.Targeting.JavaScript;
+﻿namespace Headless.Targeting.JavaScript;
 
 [SupportedTargets("JavaScript", versions: "latest|es5|es6|es7|es8|es9|es10|es11|es12|es13|es14|es2015|es2016|es2017|es2018|es2019|es2020|es2021|es2022|es2023", runtimes: "any")]
 public class JavaScriptInterpreter(JavaScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
@@ -39,18 +31,4 @@ public class JavaScriptInterpreter(JavaScriptInterpreterOptions interpreterOptio
             return Task.FromResult<IInvocationResult<TResult?>>(new InvocationResult<TResult?>(false, $"ERROR: {e.Message}", default));
         }
     }
-}
-
-internal class CompileResult(bool isSuccess, string messages, Script? jintScript) : ICompileResult
-{
-    public bool IsSuccess { get; } = isSuccess;
-    public string Messages { get; } = messages;
-    public Script? JintScript { get; } = jintScript;
-}
-
-public class InvocationResult<TResult>(bool isSuccess, string messages, TResult? result) : IInvocationResult<TResult>
-{
-    public bool IsSuccess { get; } = isSuccess;
-    public string Messages { get; } = messages;
-    public TResult? Result { get; } = result;
 }

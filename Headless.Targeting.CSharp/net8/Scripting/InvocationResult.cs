@@ -1,7 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace
 namespace Headless.Targeting.CSharp.Scripting;
 
-public class InvocationResult<TResult> : IInvocationResult<TResult>
+internal class InvocationResult<TResult> : IInvocationResult<TResult>
 {
     public bool IsSuccess { get; init; }
     public string Messages { get; init; } = string.Empty;
