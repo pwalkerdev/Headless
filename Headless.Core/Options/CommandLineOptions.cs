@@ -12,4 +12,6 @@ public class CommandLineOptions
     public string LanguageVersion { get; set; } = "latest";
     public string RuntimeVersion { get; set; } = "any";
     public string TargetKey => $"{Language}{SupportedTargetsAttribute.KeyDelimiter}{LanguageVersion}{SupportedTargetsAttribute.KeyDelimiter}{RuntimeVersion}";
+
+    public JavaScriptInterpreterOptions JavaScriptInterpreter { get; set; } = new();
 }
