@@ -69,24 +69,17 @@ public class CSharpScriptInterpreter(IOptions<CommandLineOptions> commandLineOpt
         if (compileResult is not CompileResult { IsSuccess: true, RoslynScript: { } rs })
             return InvocationResult<TResult?>.Create(false, "Unable to invoke script due to compilation errors!", default);
 
-        var messages = new StringBuilder();
         try
         {
-            var sw = Stopwatch.StartNew();
             var delegateType = (await rs.RunAsync()).ReturnValue;
             var @delegate = delegateType.GetType().GetMethod("Invoke");
             var result = (TResult?)@delegate?.Invoke(delegateType, null);
-            sw.Stop();
 
-            messages.AppendLine().AppendLine($"{string.Join("", Enumerable.Repeat('-', 13))}OUTPUT{string.Join("", Enumerable.Repeat('-', 13))}").AppendLine();
-            messages.AppendLine($"RESULT VALUE: {result}");
-            messages.AppendLine($"TIME ELAPSED: {TimeSpan.FromTicks(sw.ElapsedTicks).TotalSeconds:N4}s").AppendLine();
-
-            return InvocationResult<TResult?>.Create(true, messages, result);
+            return InvocationResult<TResult?>.Create(true, string.Empty, result);
         }
         catch (Exception e)
         {
-            return InvocationResult<TResult?>.Create(false, messages.AppendLine($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default);
+            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default);
         }
     }
 }
