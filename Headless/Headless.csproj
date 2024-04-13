@@ -41,14 +41,15 @@
 
   <ItemGroup>
     <Using Include="Headless.Core" />
+    <Using Include="Headless.Core.Attributes" />
     <Using Include="Headless.Extensions" />
-    <Using Include="Headless.Core.Extensions" />
     <Using Include="Headless.Core.Options" />
     <Using Include="Microsoft.Extensions.Configuration" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Microsoft.Extensions.Hosting" />
     <Using Include="Microsoft.Extensions.Options" />
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Reflection" />
     <Using Include="System.Text" />
   </ItemGroup>
 

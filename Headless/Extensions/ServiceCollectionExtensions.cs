@@ -1,13 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Headless.Core.Attributes;
-using Microsoft.Extensions.DependencyInjection;
+﻿namespace Headless.Extensions;
 
-namespace Headless.Core.Extensions;
-
-public static class HeadlessServiceCollectionExtensions
+internal static class ServiceCollectionExtensions
 {
     private static readonly string[] TargetingDllIdentifiers = ["Headless.Targeting.", ".dll"];
     private static readonly Type[] HeadlessServiceTypes = [typeof(IScriptCompiler), typeof(IScriptInvoker)];
@@ -32,7 +25,7 @@ public static class HeadlessServiceCollectionExtensions
         return File.Exists(assemblyFileName) ? Assembly.LoadFrom(assemblyFileName) : null;
     }
 
-    public static IServiceCollection AddHeadlessService(this IServiceCollection services)
+    public static IServiceCollection AddHeadlessServices(this IServiceCollection services, HostBuilderContext hostBuilder)
     {
         AppDomain.CurrentDomain.AssemblyResolve += ResolveHeadlessServiceAssembly;
 
@@ -56,6 +49,12 @@ public static class HeadlessServiceCollectionExtensions
         foreach (var (serviceInfo, @interface, key) in serviceInfos.SelectMany(serviceInfo => serviceInfo.ImplementedInterfaces.SelectMany(@interface => serviceInfo.SupportedTargets!.Select(key => (serviceInfo, @interface, key)))))
             _ = services.Any(s => s.IsKeyedService && s.KeyedImplementationType == serviceInfo.Type) ? services.AddKeyedScoped(@interface, key, (p, _) => p.GetKeyedServices(serviceInfo.ImplementedInterfaces[0], serviceInfo.SupportedTargets![0]).Single(s => s != null)!) : services.AddKeyedScoped(@interface, key, serviceInfo.Type);
 
-        return services;
+        return services
+            .Configure<CommandLineOptions>(hostBuilder.Configuration)
+            .Configure<JavaScriptInterpreterOptions>(hostBuilder.Configuration)
+            .AddSingleton<CommandLineOptions>(provider => provider.GetRequiredService<IOptions<CommandLineOptions>>().Value)
+            .AddSingleton<JavaScriptInterpreterOptions>(provider => provider.GetRequiredService<IOptions<CommandLineOptions>>().Value.JavaScriptInterpreter);
     }
+
+    public static void AddHeadlessServices(HostBuilderContext hostBuilder, IServiceCollection services) => services.AddHeadlessServices(hostBuilder);
 }
