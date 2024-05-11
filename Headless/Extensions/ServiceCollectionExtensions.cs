@@ -51,9 +51,9 @@ internal static class ServiceCollectionExtensions
 
         return services
             .Configure<CommandLineOptions>(hostBuilder.Configuration)
-            .Configure<JavaScriptInterpreterOptions>(hostBuilder.Configuration)
+            .Configure<JavaScriptInterpreterOptions>(hostBuilder.Configuration.GetSection("JavaScriptInterpreter"))
             .AddSingleton<CommandLineOptions>(provider => provider.GetRequiredService<IOptions<CommandLineOptions>>().Value)
-            .AddSingleton<JavaScriptInterpreterOptions>(provider => provider.GetRequiredService<IOptions<CommandLineOptions>>().Value.JavaScriptInterpreter);
+            .AddSingleton<JavaScriptInterpreterOptions>(provider => provider.GetRequiredService<IOptions<JavaScriptInterpreterOptions>>().Value);
     }
 
     public static void AddHeadlessServices(HostBuilderContext hostBuilder, IServiceCollection services) => services.AddHeadlessServices(hostBuilder);

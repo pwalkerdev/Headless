@@ -19,12 +19,13 @@ internal static class ConfigurationBuilderExtensions
 
         builder.AddCommandLine(args, new Dictionary<string, string>
         {
+            { "-i", "inputMode" },
+            { "-s", "script" },
+            { "-m", "runMode" },
+            { "-t", "postamble" },
             { "-l", "language" },
             { "-lv", "languageVersion" },
             { "-lr", "targetRuntime" },
-            { "-m", "mode" },
-            { "-s", "script" },
-            { "-t", "postamble" },
             { "--js-strict", "JavaScriptInterpreter:StrictMode" }
         });
     }

@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
-
     <EmbeddedResource Include="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <Link>%(Filename)%(Extension)</Link>
@@ -27,16 +26,7 @@
     </EmbeddedResource>
     <EmbeddedResource Remove="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*Headless.Core.*" />
     <EmbeddedResource Remove="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*Microsoft.Extensions.*" />
-
-    <!-- <Content Include="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*">
-      <Link>%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IsAssembly>true</IsAssembly>
-      <PublishState>Default</PublishState>
-      <Visible>False</Visible>
-    </Content>
-    <Content Remove="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*Headless.Core.dll">
-    </Content> -->
+    <EmbeddedResource Remove="..\Headless.Targeting.*\bin\$(Configuration)\$(TargetFramework)\*.deps.json" />
   </ItemGroup>
 
   <ItemGroup>
