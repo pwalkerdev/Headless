@@ -13,7 +13,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions) : IS
         if (!commandLineOptions.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
             return CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
 
-        var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(_assemblyReferences).WithImports(_implicitImports);
+        var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(_assemblyReferences).WithImports(_implicitImports).WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug);
         var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
         try
         {
@@ -31,7 +31,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions) : IS
                 var wrapperType = entryExpression.ChildNodes().OfType<ExpressionSyntax>().FirstOrDefault() is { } expr && semanticModel.GetTypeInfo(expr).Type is { Name: not "Void" } type ? $"Func<{type.Name}>" : "Action";
                 var wrapper = SyntaxFactory.ObjectCreationExpression(SyntaxFactory.IdentifierName(wrapperType), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new [] { SyntaxFactory.Argument(entryExpression) })), null);
 
-                roslynScript = CSharpScript.Create(wrapper.NormalizeWhitespace().ToString(), roslynScriptOptions);
+                roslynScript = CSharpScript.Create(wrapper.NormalizeWhitespace().ToString(), roslynScript.Options);
             }
             else if ((await syntaxTree.GetRootAsync()).Get<MethodDeclarationSyntax>().SingleOrDefault() is { } entryMethod)
             {
@@ -49,7 +49,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions) : IS
                 var globalStatement = SyntaxFactory.GlobalStatement(SyntaxFactory.ExpressionStatement(wrapper)
                         .WithSemicolonToken(SyntaxFactory.Token(SyntaxTriviaList.Empty, SyntaxKind.SemicolonToken, string.Empty, string.Empty, SyntaxTriviaList.Empty)));
 
-                roslynScript = CSharpScript.Create(entryMethod.Parent!.InsertNodesAfter(entryMethod, new[] { globalStatement.NormalizeWhitespace() }).ToString(), roslynScriptOptions);
+                roslynScript = CSharpScript.Create(entryMethod.Parent!.InsertNodesAfter(entryMethod, [globalStatement.NormalizeWhitespace()]).ToString(), roslynScript.Options);
             }
             else
                 throw new InvalidOperationException("Unable to determine script entry point -- eventually this won't be a problem... But for now scripts need to be written as a single method or expression body. Local methods are supported");
