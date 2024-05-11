@@ -15,7 +15,7 @@
             "request": "launch",
             "preLaunchTask": "Build Solution",
             "program": "${workspaceFolder}${/}Headless${/}bin${/}Debug${/}net8.0${/}Headless.dll",
-            "args": ["-l", "CSharp", "-m", "stream", "-t", "asdf"],
+            "args": ["-m", "Debug", "-l", "CSharp", "-i", "stream", "-t", "asdf"],
             "cwd": "${workspaceFolder}${/}Headless",
             "console": "integratedTerminal",
             "stopAtEntry": false
@@ -25,7 +25,7 @@
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceFolder}${/}Headless${/}bin${/}Debug${/}net8.0${/}Headless.dll",
-            "args": ["-l", "CSharp", "-m", "stream", "-t", "asdf"],
+            "args": ["-m", "Debug", "-l", "CSharp", "-i", "stream", "-t", "asdf"],
             "cwd": "${workspaceFolder}${/}Headless",
             "console": "integratedTerminal",
             "stopAtEntry": false
