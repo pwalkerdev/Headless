@@ -4,8 +4,9 @@ namespace Headless.Core.Options;
 
 public class CommandLineOptions
 {
-    public ScriptInputMode Mode { get; set; }
+    public ScriptInputMode InputMode { get; set; }
     public string Script { get; set; } = string.Empty;
+    public RunMode RunMode { get; set; }
     public string Postamble { get; set; } = string.Empty;
 
     public string Language { get; set; } = string.Empty;

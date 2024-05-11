@@ -5,7 +5,7 @@
 
 using var scope = host.Services.CreateScope();
 var options = scope.ServiceProvider.GetRequiredService<CommandLineOptions>();
-var script = options.Mode switch
+var script = options.InputMode switch
 {
     ScriptInputMode.File => new StringBuilder(File.ReadAllText(options.Script)),
     ScriptInputMode.Stream => new Func<StringBuilder>(() =>
@@ -29,14 +29,14 @@ if (script.Length == 0)
 
 Console.Out.WriteLine($"{Environment.NewLine}-------------OUTPUT-------------{Environment.NewLine}");
 
-var compileTaskTimedResult = await TimedTask.Run(() => scope.ServiceProvider.GetRequiredKeyedService<IScriptCompiler>(options.TargetKey).Compile(script.ToString()));
+var compileTaskTimedResult = await scope.ServiceProvider.GetRequiredKeyedService<IScriptCompiler>(options.TargetKey).Compile(script.ToString()).WithTimer();
 if (compileTaskTimedResult.TaskResult.IsSuccess)
 {
-    var invokeTaskTimedResult = await TimedTask.Run(() => scope.ServiceProvider.GetRequiredKeyedService<IScriptInvoker>(options.TargetKey).Run<object>(compileTaskTimedResult.TaskResult));
+    var invokeTaskTimedResult = await scope.ServiceProvider.GetRequiredKeyedService<IScriptInvoker>(options.TargetKey).Run<object>(compileTaskTimedResult.TaskResult).WithTimer();
     if (invokeTaskTimedResult.TaskResult.IsSuccess)
     {
-        Console.Out.WriteLine($"COMPILED IN: {compileTaskTimedResult.TaskDuration.TotalMilliseconds:N2} ms");
-        Console.Out.WriteLine($"EXECUTED IN: {invokeTaskTimedResult.TaskDuration.TotalMilliseconds:N2} ms{Environment.NewLine}");
+        Console.Out.WriteLine($"COMPILED IN: {compileTaskTimedResult.TaskDuration:ss\\.fffffff} s");
+        Console.Out.WriteLine($"EXECUTED IN: {invokeTaskTimedResult.TaskDuration:ss\\.fffffff} s{Environment.NewLine}");
         Console.Out.WriteLine($"RESULT VALUE: {invokeTaskTimedResult.TaskResult.Result}");
     }
     else

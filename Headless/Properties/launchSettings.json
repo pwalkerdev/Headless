@@ -2,8 +2,8 @@
   "profiles": {
     "Headless": {
       "commandName": "Project",
-      "commandLineArgs": "-m stream -t asdf -l JavaScript -lv latest --js-strict"
-      //"commandLineArgs": "-m stream -t asdf -l CSharp -lv latest"
+      //"commandLineArgs": "-l JavaScript -i stream -t asdf -lv latest --js-strict"
+      "commandLineArgs": "-m Debug -l CSharp -i stream -t asdf"
     }
   }
 }
