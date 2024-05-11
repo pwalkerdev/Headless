@@ -26,6 +26,7 @@ internal static class ConfigurationBuilderExtensions
             { "-l", "language" },
             { "-lv", "languageVersion" },
             { "-lr", "targetRuntime" },
+            { "--cs-impl-scheme", "CSharpScriptInterpreter:ImplementationScheme" },
             { "--js-strict", "JavaScriptInterpreter:StrictMode" }
         });
     }

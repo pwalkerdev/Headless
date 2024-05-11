@@ -14,5 +14,7 @@ public class CommandLineOptions
     public string RuntimeVersion { get; set; } = "any";
     public string TargetKey => $"{Language}{SupportedTargetsAttribute.KeyDelimiter}{LanguageVersion}{SupportedTargetsAttribute.KeyDelimiter}{RuntimeVersion}";
 
+    // TODO: These should not live in this project. Because they are target specific, they should be their corresponding target's project
+    public CSharpScriptInterpreterOptions CSharpScriptInterpreter { get; set; } = new();
     public JavaScriptInterpreterOptions JavaScriptInterpreter { get; set; } = new();
 }

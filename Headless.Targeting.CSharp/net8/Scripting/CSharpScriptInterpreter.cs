@@ -2,23 +2,36 @@
 namespace Headless.Targeting.CSharp.Scripting;
 
 [SupportedTargets("CSharp", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
-public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions) : IScriptCompiler, IScriptInvoker
+public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSharpScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
 {
-    private static readonly string[] _implicitImports = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
-    private static readonly MetadataReference[] _assemblyReferences = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.ExportedTypes.Any(t => _implicitImports.Contains(t.Namespace))).Select(RoslynScriptingExtensions.GetMetadataReference).OfType<MetadataReference>().ToArray();
+    internal static string[] ImplicitImports { get; } = [ "Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq" ];
+    internal static MetadataReference[] AssemblyReferences { get; } = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.ExportedTypes.Any(t => ImplicitImports.Contains(t.Namespace))).Select(RoslynScriptingExtensions.GetMetadataReference).OfType<MetadataReference>().ToArray();
 
     public async Task<ICompileResult> Compile(string script)
     {
+        if (interpreterOptions.ImplementationScheme != CSharpScriptImplementationScheme.Automatic)
+            throw new NotSupportedException("The specified execution scheme is currently unsupported. It's probably not too long away though");
+
         // TODO: This method is in need of a re-work... Although it does work, I have some ideas to make it faster, more flexible and most importantly, easier to read. It was originally copied from a different project of mine and well yeah you will probably be able to tell from all the stuff it doesn't need to do.
         if (!commandLineOptions.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
             return CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
 
-        var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(_assemblyReferences).WithImports(_implicitImports).WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug);
+        var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(AssemblyReferences).WithImports(ImplicitImports).WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug);
         var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
+        // var filePath = @$"Headless+{Guid.NewGuid()}.cs";
+        // var roslynScript = CSharpScript.Create($"#load \"{filePath}\"", ScriptOptions.Default
+        //                                                                 .WithLanguageVersion(languageVersion)
+        //                                                                 .WithReferences(AssemblyReferences)
+        //                                                                 .WithImports(ImplicitImports)
+        //                                                                 .WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug)
+        //                                                                 .WithFilePath(filePath)
+        //                                                                 .WithFileEncoding(Encoding.UTF8)
+        //                                                                 .WithSourceResolver(new HeadlessCSharpScriptSourceResolver(new() { { filePath, script } })));
+
         try
         {
             var compilation = roslynScript.GetCompilation();
-            var syntaxTree = compilation.SyntaxTrees.Single();
+            var syntaxTree = compilation.SyntaxTrees.First();
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
             ScriptImplementationDescriptor implementationDescriptor;
 
@@ -50,6 +63,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions) : IS
                         .WithSemicolonToken(SyntaxFactory.Token(SyntaxTriviaList.Empty, SyntaxKind.SemicolonToken, string.Empty, string.Empty, SyntaxTriviaList.Empty)));
 
                 roslynScript = CSharpScript.Create(entryMethod.Parent!.InsertNodesAfter(entryMethod, [globalStatement.NormalizeWhitespace()]).ToString(), roslynScript.Options);
+                //roslynScript = CSharpScript.Create($"#load \"{filePath}\"{Environment.NewLine}{globalStatement.NormalizeWhitespace()}", roslynScript.Options);
             }
             else
                 throw new InvalidOperationException("Unable to determine script entry point -- eventually this won't be a problem... But for now scripts need to be written as a single method or expression body. Local methods are supported");
@@ -81,4 +95,22 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions) : IS
             return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default);
         }
     }
+}
+
+internal class HeadlessCSharpScriptSourceResolver(Dictionary<string, string>? scriptsByName = null) : SourceReferenceResolver
+{
+    private readonly SourceFileResolver _baseResolver = new([], AppContext.BaseDirectory);
+    private readonly Dictionary<string, string> _inMemorySourceFiles = scriptsByName ?? [];
+
+    public override string? NormalizePath(string path, string? baseFilePath) => path.StartsWith("Headless+") ? path : _baseResolver.NormalizePath(path, baseFilePath);
+    public override string? ResolveReference(string path, string? baseFilePath) => _inMemorySourceFiles.ContainsKey(path) ? path : _baseResolver.ResolveReference(path, baseFilePath);
+    public override Stream OpenRead(string resolvedPath) => _inMemorySourceFiles.TryGetValue(resolvedPath, out var content) ? new MemoryStream(Encoding.UTF8.GetBytes(content)) : _baseResolver.OpenRead(resolvedPath);
+
+    // public override string? NormalizePath(string path, string? baseFilePath) => _baseResolver.NormalizePath(path, baseFilePath);
+    // public override string? ResolveReference(string path, string? baseFilePath) => _baseResolver.ResolveReference(path, baseFilePath);
+    // public override Stream OpenRead(string resolvedPath) => _baseResolver.OpenRead(resolvedPath);
+
+    protected bool Equals(HeadlessCSharpScriptSourceResolver other) => Equals(_inMemorySourceFiles, other._inMemorySourceFiles) && Equals(_baseResolver, other._baseResolver);
+    public override bool Equals(object? obj) => obj is HeadlessCSharpScriptSourceResolver sr && (ReferenceEquals(this, obj) || Equals(sr));
+    public override int GetHashCode() => unchecked (((37 * 397) ^ (_inMemorySourceFiles?.GetHashCode() ?? 0)) * 397) ^ (_baseResolver?.GetHashCode() ?? 0);
 }
