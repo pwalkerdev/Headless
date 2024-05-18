@@ -10,5 +10,5 @@ public class SupportedTargetsAttribute(string name, string versions = "latest", 
     public const char KeyDelimiter = ';';
     public const char PropertyDelimiter = '|';
 
-    public IEnumerable<string> Keys { get; } = versions.Split(PropertyDelimiter).SelectMany(version => runtimes.Split(PropertyDelimiter).Select(runtime => $"{name}{KeyDelimiter}{version}{KeyDelimiter}{runtime}"));
+    public IEnumerable<string> Keys { get; } = versions.Split(PropertyDelimiter).SelectMany(version => runtimes.Split(PropertyDelimiter).Select(runtime => $"{name}{KeyDelimiter}{version}{KeyDelimiter}{runtime}".ToLower()));
 }

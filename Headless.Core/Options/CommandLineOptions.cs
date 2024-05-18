@@ -12,7 +12,7 @@ public class CommandLineOptions
     public string Language { get; set; } = string.Empty;
     public string LanguageVersion { get; set; } = "latest";
     public string RuntimeVersion { get; set; } = "any";
-    public string TargetKey => $"{Language}{SupportedTargetsAttribute.KeyDelimiter}{LanguageVersion}{SupportedTargetsAttribute.KeyDelimiter}{RuntimeVersion}";
+    public string TargetKey => $"{Language}{SupportedTargetsAttribute.KeyDelimiter}{LanguageVersion}{SupportedTargetsAttribute.KeyDelimiter}{RuntimeVersion}".ToLower();
 
     // TODO: These should not live in this project. Because they are target specific, they should be their corresponding target's project
     public CSharpScriptInterpreterOptions CSharpScriptInterpreter { get; set; } = new();
