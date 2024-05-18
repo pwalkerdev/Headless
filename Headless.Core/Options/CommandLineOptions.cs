@@ -12,7 +12,7 @@ public class CommandLineOptions
     public string Language { get; set; } = string.Empty;
     public string LanguageVersion { get; set; } = "latest";
     public string RuntimeVersion { get; set; } = "any";
-    public string TargetKey => $"{Language}{SupportedTargetsAttribute.KeyDelimiter}{LanguageVersion}{SupportedTargetsAttribute.KeyDelimiter}{RuntimeVersion}";
+    public string TargetKey => $"{Language}{SupportedTargetsAttribute.KeyDelimiter}{LanguageVersion}{SupportedTargetsAttribute.KeyDelimiter}{RuntimeVersion}".ToLower();
 
     public JavaScriptInterpreterOptions JavaScriptInterpreter { get; set; } = new();
 }
