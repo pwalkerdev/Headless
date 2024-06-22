@@ -10,7 +10,15 @@ internal static class ConsoleExtensions
         Console.SetCursorPosition(startingPosition.CursorLeft, startingPosition.CursorTop);
     }
 
-    public static void BlankOutLastLine(int? width = null) => BlankOutLine(Console.CursorTop - 1, width ?? Console.BufferWidth);
+    public static void BlankOutLastLine(int? width = null)
+    {
+        if (!Console.IsInputRedirected)
+            BlankOutLine(Console.CursorTop - 1, width ?? Console.BufferWidth);
+    }
 
-    public static void ShiftCursorUp(int linesToMoveUp) => Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - linesToMoveUp);
+    public static void ShiftCursorUp(int linesToMoveUp)
+    {
+        if (!Console.IsInputRedirected)
+            Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop - linesToMoveUp);
+    }
 }
