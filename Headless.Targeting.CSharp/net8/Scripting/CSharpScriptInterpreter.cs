@@ -90,9 +90,13 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
 
             return InvocationResult<TResult?>.Create(true, string.Empty, result);
         }
+        catch (Exception e) when (e is { InnerException: {} ie })
+        {
+            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {ie.Message}{Environment.NewLine}").AppendLine(ie.StackTrace), default);
+        }
         catch (Exception e)
         {
-            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default);
+            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}{Environment.NewLine}").AppendLine(e.StackTrace), default);
         }
     }
 }
