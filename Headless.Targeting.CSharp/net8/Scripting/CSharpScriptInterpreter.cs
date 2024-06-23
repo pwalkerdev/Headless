@@ -16,17 +16,18 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
         if (!commandLineOptions.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
             return CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
 
-        var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(AssemblyReferences).WithImports(ImplicitImports).WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug);
-        var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
-        // var filePath = @$"Headless+{Guid.NewGuid()}.cs";
-        // var roslynScript = CSharpScript.Create($"#load \"{filePath}\"", ScriptOptions.Default
-        //                                                                 .WithLanguageVersion(languageVersion)
-        //                                                                 .WithReferences(AssemblyReferences)
-        //                                                                 .WithImports(ImplicitImports)
-        //                                                                 .WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug)
-        //                                                                 .WithFilePath(filePath)
-        //                                                                 .WithFileEncoding(Encoding.UTF8)
-        //                                                                 .WithSourceResolver(new HeadlessCSharpScriptSourceResolver(new() { { filePath, script } })));
+        //var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(AssemblyReferences).WithImports(ImplicitImports).WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug);
+        //var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
+        //var filePath = @$"Headless+{Guid.NewGuid()}.cs";
+        var filePath = "prototypervfs:///Untitled-1.cs";
+        var roslynScript = CSharpScript.Create($"#load \"{filePath}\"", ScriptOptions.Default
+                                                                        .WithLanguageVersion(languageVersion)
+                                                                        .WithReferences(AssemblyReferences)
+                                                                        .WithImports(ImplicitImports)
+                                                                        .WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug)
+                                                                        .WithFilePath(filePath)
+                                                                        .WithFileEncoding(Encoding.UTF8)
+                                                                        .WithSourceResolver(new HeadlessCSharpScriptSourceResolver(new() { { filePath, script } })));
 
         try
         {
@@ -62,8 +63,8 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
                 var globalStatement = SyntaxFactory.GlobalStatement(SyntaxFactory.ExpressionStatement(wrapper)
                         .WithSemicolonToken(SyntaxFactory.Token(SyntaxTriviaList.Empty, SyntaxKind.SemicolonToken, string.Empty, string.Empty, SyntaxTriviaList.Empty)));
 
-                roslynScript = CSharpScript.Create(entryMethod.Parent!.InsertNodesAfter(entryMethod, [globalStatement.NormalizeWhitespace()]).ToString(), roslynScript.Options);
-                //roslynScript = CSharpScript.Create($"#load \"{filePath}\"{Environment.NewLine}{globalStatement.NormalizeWhitespace()}", roslynScript.Options);
+                //roslynScript = CSharpScript.Create(entryMethod.Parent!.InsertNodesAfter(entryMethod, [globalStatement.NormalizeWhitespace()]).ToString(), roslynScript.Options);
+                roslynScript = CSharpScript.Create($"#load \"{filePath}\"{Environment.NewLine}{globalStatement.NormalizeWhitespace()}", roslynScript.Options);
             }
             else
                 throw new InvalidOperationException("Unable to determine script entry point -- eventually this won't be a problem... But for now scripts need to be written as a single method or expression body. Local methods are supported");
