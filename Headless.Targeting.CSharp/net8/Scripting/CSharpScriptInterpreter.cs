@@ -16,10 +16,15 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
         if (!commandLineOptions.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
             return CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
 
+        var filePath = interpreterOptions.FileName ?? commandLineOptions.InputMode switch
+        {
+            ScriptInputMode.File => commandLineOptions.Script,
+            ScriptInputMode.Stream => $"{commandLineOptions.Postamble}.cs",
+            _ => $"Headless+{Guid.NewGuid()}.cs"
+        };
+        
         //var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(AssemblyReferences).WithImports(ImplicitImports).WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug);
         //var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
-        //var filePath = @$"Headless+{Guid.NewGuid()}.cs";
-        var filePath = "prototypervfs:///Untitled-1.cs";
         var roslynScript = CSharpScript.Create($"#load \"{filePath}\"", ScriptOptions.Default
                                                                         .WithLanguageVersion(languageVersion)
                                                                         .WithReferences(AssemblyReferences)
