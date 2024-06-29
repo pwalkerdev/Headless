@@ -1,5 +1,5 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace Headless.Targeting.CSharp.Scripting;
+namespace Headless.Targeting.CSharp.Compilation;
 
 internal class CompileResult : ICompileResult
 {

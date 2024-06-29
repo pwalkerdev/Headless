@@ -1,7 +1,5 @@
 // ReSharper disable once CheckNamespace
-using System.Security.Cryptography;
-
-namespace Headless.Targeting.CSharp.Scripting;
+namespace Headless.Targeting.CSharp.Compilation;
 
 [SupportedTargets("CSharp-new", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
 public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, CSharpScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
@@ -10,15 +8,12 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
     {
         try
         {
-            if (!commandLineOptions.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
-                return Task.FromResult<ICompileResult>(CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null));
-
             var roslynScript = interpreterOptions.ImplementationScheme switch
             {
-                CSharpScriptImplementationScheme.Method => CreateScriptWithMethodBody(script, languageVersion),
+                CSharpScriptImplementationScheme.Method => CreateScriptWithMethodBody(script),
                 _ => throw new NotImplementedException()
             };
-            
+
             var roslynAnalysis = roslynScript.Compile();
             return Task.FromResult<ICompileResult>(CompileResult.Create(roslynAnalysis.All(msg => msg.Severity < DiagnosticSeverity.Error), string.Join(Environment.NewLine, roslynAnalysis), roslynScript));
         }
@@ -48,17 +43,29 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         }
     }
 
-    private Script<object> CreateScriptWithMethodBody(string script, LanguageVersion languageVersion) =>
+    private LanguageVersion LanguageVersion { get; } = commandLineOptions.LanguageVersion.ResolveLanguageVersion();
+
+    private string SourceFilePath => interpreterOptions.FileName ?? commandLineOptions.InputMode switch
+    {
+        ScriptInputMode.File => commandLineOptions.Script,
+        ScriptInputMode.Stream => $"{commandLineOptions.Postamble}.cs",
+        _ => $"Headless+{Guid.NewGuid()}.cs"
+    };
+
+    private Script<object> CreateScriptWithMethodBody(string script) =>
         CSharpScript.Create(script)
             .WithOptions(ScriptOptions.Default
-                .WithLanguageVersion(languageVersion)
+                .WithLanguageVersion(LanguageVersion)
                 .WithReferences(CSharpScriptInterpreter.AssemblyReferences)
                 .WithImports(CSharpScriptInterpreter.ImplicitImports)
-                .WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug));
+                .WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug)
+                .WithFilePath(SourceFilePath)
+                .WithFileEncoding(Encoding.UTF8)
+                .WithSourceResolver(new HeadlessCSharpScriptSourceResolver(new() { { SourceFilePath, script } })));
 
-    private CSharpCompilation CreateCompilationFromMethod(string source) =>
-        CSharpCompilation.Create(Guid.NewGuid().ToString().Replace("-", "")) // TODO - allow for explicit naming of scripts through command line. Named scripts can be cached and re-run
-            .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-            .WithReferences(CSharpScriptInterpreter.AssemblyReferences)
-            .AddSyntaxTrees(SyntaxFactory.ParseSyntaxTree(source));
+    //private CSharpCompilation CreateCompilationFromMethod(string source) =>
+    //    CSharpCompilation.Create(Guid.NewGuid().ToString().Replace("-", "")) // TODO - allow for explicit naming of scripts through command line. Named scripts can be cached and re-run
+    //        .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+    //        .WithReferences(CSharpScriptInterpreter.AssemblyReferences)
+    //        .AddSyntaxTrees(SyntaxFactory.ParseSyntaxTree(source));
 }
