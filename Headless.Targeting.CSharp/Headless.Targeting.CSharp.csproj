@@ -10,28 +10,15 @@
     <AssemblyName>$(MSBuildProjectName).$(TargetFramework)</AssemblyName>
     <DebugType>embedded</DebugType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
-  </ItemGroup>
-  
-  <!-- .NET / .NET Core -->
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
-    <Compile Remove="netframework48\**\*" />
-    <None Include="netframework48\**\*" />
-    
     <Using Include="Headless.Core" />
     <Using Include="Headless.Core.Attributes" />
     <Using Include="Headless.Core.Options" />
     <Using Include="Headless.Targeting.CSharp.Extensions" />
-    <Using Include="Headless.Targeting.CSharp.Scripting" />
     <Using Include="Microsoft.CodeAnalysis" />
     <Using Include="Microsoft.CodeAnalysis.CSharp" />
     <Using Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
@@ -40,15 +27,30 @@
     <Using Include="System" />
     <Using Include="System.Collections.Generic" />
     <Using Include="System.Collections.Immutable" />
-    <Using Include="System.Diagnostics" />
+    <Using Include="System.IO" />
     <Using Include="System.Linq" />
     <Using Include="System.Reflection" />
     <Using Include="System.Reflection.Metadata" />
     <Using Include="System.Text" />
+    <Using Include="System.Threading.Tasks" />
 
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.9.2" />
+    <ProjectReference Include="..\Headless.Core\Headless.Core.csproj" />
+
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.10.0" />
+  </ItemGroup>
+  
+  <!-- .NET / .NET Core -->
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <Compile Remove="netframework48\**\*" />
+    <None Include="netframework48\**\*" />
+
+    <Using Include="Headless.Targeting.CSharp.Syntax" />
   </ItemGroup>
   
   <!-- .NET Framework -->
@@ -60,5 +62,4 @@
     <Compile Remove="net8\**\*" />
     <None Include="net8\**\*" />
   </ItemGroup>
-
 </Project>

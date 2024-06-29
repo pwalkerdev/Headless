@@ -1,10 +1,10 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace Headless.Targeting.CSharp.Scripting;
+namespace Headless.Targeting.CSharp.Compilation;
 
 [SupportedTargets("CSharp", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
 public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSharpScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
 {
-    internal static string[] ImplicitImports { get; } = [ "Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq" ];
+    internal static string[] ImplicitImports { get; } = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
     internal static MetadataReference[] AssemblyReferences { get; } = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.ExportedTypes.Any(t => ImplicitImports.Contains(t.Namespace))).Select(RoslynScriptingExtensions.GetMetadataReference).OfType<MetadataReference>().ToArray();
 
     public async Task<ICompileResult> Compile(string script)
@@ -13,7 +13,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
             throw new NotSupportedException("The specified execution scheme is currently unsupported. It's probably not too long away though");
 
         // TODO: This method is in need of a re-work... Although it does work, I have some ideas to make it faster, more flexible and most importantly, easier to read. It was originally copied from a different project of mine and well yeah you will probably be able to tell from all the stuff it doesn't need to do.
-        if (!commandLineOptions.LanguageVersion.ResolveLanguageVersion(out var languageVersion))
+        if (!commandLineOptions.LanguageVersion.TryResolveLanguageVersion(out var languageVersion))
             return CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
 
         var filePath = interpreterOptions.FileName ?? commandLineOptions.InputMode switch
@@ -22,7 +22,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
             ScriptInputMode.Stream => $"{commandLineOptions.Postamble}.cs",
             _ => $"Headless+{Guid.NewGuid()}.cs"
         };
-        
+
         //var roslynScriptOptions = ScriptOptions.Default.WithLanguageVersion(languageVersion).WithReferences(AssemblyReferences).WithImports(ImplicitImports).WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug);
         //var roslynScript = CSharpScript.Create(script, roslynScriptOptions);
         var roslynScript = CSharpScript.Create($"#load \"{filePath}\"", ScriptOptions.Default
@@ -48,7 +48,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
 
                 // If the script is formatted as a lambda, wrap it in `new Func<object>(() => myScript)` - this improves compatibility with older language versions.
                 var wrapperType = entryExpression.ChildNodes().OfType<ExpressionSyntax>().FirstOrDefault() is { } expr && semanticModel.GetTypeInfo(expr).Type is { Name: not "Void" } type ? $"Func<{type.Name}>" : "Action";
-                var wrapper = SyntaxFactory.ObjectCreationExpression(SyntaxFactory.IdentifierName(wrapperType), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new [] { SyntaxFactory.Argument(entryExpression) })), null);
+                var wrapper = SyntaxFactory.ObjectCreationExpression(SyntaxFactory.IdentifierName(wrapperType), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] { SyntaxFactory.Argument(entryExpression) })), null);
 
                 roslynScript = CSharpScript.Create(wrapper.NormalizeWhitespace().ToString(), roslynScript.Options);
             }
@@ -96,7 +96,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
 
             return InvocationResult<TResult?>.Create(true, string.Empty, result);
         }
-        catch (Exception e) when (e is { InnerException: {} ie })
+        catch (Exception e) when (e is { InnerException: { } ie })
         {
             return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {ie.Message}{Environment.NewLine}").AppendLine(ie.StackTrace), default);
         }
@@ -122,5 +122,5 @@ internal class HeadlessCSharpScriptSourceResolver(Dictionary<string, string>? sc
 
     protected bool Equals(HeadlessCSharpScriptSourceResolver other) => Equals(_inMemorySourceFiles, other._inMemorySourceFiles) && Equals(_baseResolver, other._baseResolver);
     public override bool Equals(object? obj) => obj is HeadlessCSharpScriptSourceResolver sr && (ReferenceEquals(this, obj) || Equals(sr));
-    public override int GetHashCode() => unchecked (((37 * 397) ^ (_inMemorySourceFiles?.GetHashCode() ?? 0)) * 397) ^ (_baseResolver?.GetHashCode() ?? 0);
+    public override int GetHashCode() => unchecked(((37 * 397) ^ _inMemorySourceFiles.GetHashCode()) * 397) ^ _baseResolver.GetHashCode();
 }
