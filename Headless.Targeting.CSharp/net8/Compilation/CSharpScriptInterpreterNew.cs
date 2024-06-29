@@ -4,7 +4,7 @@ namespace Headless.Targeting.CSharp.Compilation;
 [SupportedTargets("CSharp-new", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
 public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, CSharpScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
 {
-    public Task<ICompileResult> Compile(string script)
+    public async Task<ICompileResult> Compile(string script)
     {
         try
         {
@@ -15,11 +15,11 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
             };
 
             var roslynAnalysis = roslynScript.Compile();
-            return Task.FromResult<ICompileResult>(CompileResult.Create(roslynAnalysis.All(msg => msg.Severity < DiagnosticSeverity.Error), string.Join(Environment.NewLine, roslynAnalysis), roslynScript));
+            return await Task.FromResult<ICompileResult>(CompileResult.Create(roslynAnalysis.All(msg => msg.Severity < DiagnosticSeverity.Error), string.Join(Environment.NewLine, roslynAnalysis), roslynScript));
         }
         catch (Exception e)
         {
-            return Task.FromResult<ICompileResult>(CompileResult.Create(false, $"ERROR: {e.Message}", default));
+            return await Task.FromResult<ICompileResult>(CompileResult.Create(false, $"ERROR: {e.Message}", default));
         }
     }
 
@@ -45,7 +45,7 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
 
     private LanguageVersion LanguageVersion { get; } = commandLineOptions.LanguageVersion.ResolveLanguageVersion();
 
-    private string SourceFilePath => interpreterOptions.FileName ?? commandLineOptions.InputMode switch
+    private string SourceFilePath { get; } = interpreterOptions.FileName ?? commandLineOptions.InputMode switch
     {
         ScriptInputMode.File => commandLineOptions.Script,
         ScriptInputMode.Stream => $"{commandLineOptions.Postamble}.cs",
@@ -53,15 +53,14 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
     };
 
     private Script<object> CreateScriptWithMethodBody(string script) =>
-        CSharpScript.Create(script)
-            .WithOptions(ScriptOptions.Default
-                .WithLanguageVersion(LanguageVersion)
-                .WithReferences(CSharpScriptInterpreter.AssemblyReferences)
-                .WithImports(CSharpScriptInterpreter.ImplicitImports)
-                .WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug)
-                .WithFilePath(SourceFilePath)
-                .WithFileEncoding(Encoding.UTF8)
-                .WithSourceResolver(new HeadlessCSharpScriptSourceResolver(new() { { SourceFilePath, script } })));
+        CSharpScript.Create(script, ScriptOptions.Default
+            .WithLanguageVersion(LanguageVersion)
+            .WithReferences(CSharpScriptInterpreter.AssemblyReferences)
+            .WithImports(CSharpScriptInterpreter.ImplicitImports)
+            .WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug)
+            .WithFilePath(SourceFilePath)
+            .WithFileEncoding(Encoding.UTF8)
+            .WithSourceResolver(new HeadlessCSharpScriptSourceResolver(new() { { SourceFilePath, script } })));
 
     //private CSharpCompilation CreateCompilationFromMethod(string source) =>
     //    CSharpCompilation.Create(Guid.NewGuid().ToString().Replace("-", "")) // TODO - allow for explicit naming of scripts through command line. Named scripts can be cached and re-run
