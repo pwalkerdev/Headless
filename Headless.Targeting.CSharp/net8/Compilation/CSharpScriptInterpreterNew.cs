@@ -8,38 +8,54 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
     {
         try
         {
-            var roslynScript = interpreterOptions.ImplementationScheme switch
+            var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion);
+            var syntaxTree = interpreterOptions.ImplementationScheme switch
             {
-                CSharpScriptImplementationScheme.Method => CreateScriptWithMethodBody(script),
+                CSharpScriptImplementationScheme.Expression => SyntaxTreeBuilder.FromExpression(script, parseOptions),
+                CSharpScriptImplementationScheme.SingleStatement => SyntaxTreeBuilder.FromStatement(script, parseOptions),
+                CSharpScriptImplementationScheme.MultiStatement => SyntaxTreeBuilder.FromStatement(script, parseOptions),
+                CSharpScriptImplementationScheme.Method => SyntaxTreeBuilder.FromMethod(script, parseOptions),
+                CSharpScriptImplementationScheme.MethodExpressionBody => SyntaxTreeBuilder.FromMethod(script, parseOptions),
+                CSharpScriptImplementationScheme.Class => SyntaxTreeBuilder.FromClass(script, parseOptions),
+                CSharpScriptImplementationScheme.Namespace => SyntaxTreeBuilder.FromNamespace(script, parseOptions),
                 _ => throw new NotImplementedException()
             };
 
-            var roslynAnalysis = roslynScript.Compile();
-            return await Task.FromResult<ICompileResult>(CompileResult.Create(roslynAnalysis.All(msg => msg.Severity < DiagnosticSeverity.Error), string.Join(Environment.NewLine, roslynAnalysis), roslynScript));
+            var compilation = CreateCompilation(syntaxTree);
+
+            var (diagnostics, bytes) = EmitCompilation(compilation);
+            if (commandLineOptions.RunMode == RunMode.CompileOnly)
+                return await Task.FromResult<ICompileResult>(CompileResult.Create(true, string.Join(Environment.NewLine, diagnostics), default(Assembly)));
+
+            var outputAssembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(bytes));
+            return await Task.FromResult<ICompileResult>(CompileResult.Create(true, string.Join(Environment.NewLine, diagnostics), outputAssembly));
+        }
+        catch (CompilationErrorException e)
+        {
+            return await Task.FromResult<ICompileResult>(CompileResult.Create(false, string.Join(Environment.NewLine, [$"{e.Message}:{Environment.NewLine}", ..e.Diagnostics]), default(Assembly)));
         }
         catch (Exception e)
         {
-            return await Task.FromResult<ICompileResult>(CompileResult.Create(false, $"ERROR: {e.Message}", default));
+            return await Task.FromResult<ICompileResult>(CompileResult.Create(false, $"ERROR: {e.Message}", default(Assembly)));
         }
     }
 
     public async Task<IInvocationResult<TResult?>> Run<TResult>(ICompileResult compileResult)
     {
-        if (compileResult is not CompileResult { IsSuccess: true, RoslynScript: { } rs })
+        if (compileResult is not CompileResult { IsSuccess: true, OutputAssebly: { } ass })
             return InvocationResult<TResult?>.Create(false, "Unable to invoke script due to compilation errors!", default);
 
         try
         {
-            //var delegateType = (await rs.RunAsync()).ReturnValue;
-            //var @delegate = delegateType.GetType().GetMethod("Invoke");
-            //var result = (TResult?)@delegate?.Invoke(delegateType, null);
-            var result = (TResult)(await rs.RunAsync()).ReturnValue;
+            var type = ass.GetTypes().First(t => t.IsClass && (!t.IsAbstract || t.IsSealed)); // Static classes are abstract and sealed
+            var instance = !type.IsAbstract ? Activator.CreateInstance(type) : null;
+            var result = type.GetMethods(BindingFlags.Public | BindingFlags.Static).FirstOrDefault()?.Invoke(instance, null);
 
-            return InvocationResult<TResult?>.Create(true, string.Empty, result);
+            return await Task.FromResult(InvocationResult<TResult?>.Create(true, string.Empty, (TResult?)result));
         }
         catch (Exception e)
         {
-            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default);
+            return await Task.FromResult(InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default));
         }
     }
 
@@ -51,20 +67,26 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         ScriptInputMode.Stream => $"{commandLineOptions.Postamble}.cs",
         _ => $"Headless+{Guid.NewGuid()}.cs"
     };
+    
+    private static MetadataReference[] References => CSharpScriptInterpreter.AssemblyReferences; // TODO - Update static references to include all assemblies in target platform
 
-    private Script<object> CreateScriptWithMethodBody(string script) =>
-        CSharpScript.Create(script, ScriptOptions.Default
-            .WithLanguageVersion(LanguageVersion)
-            .WithReferences(CSharpScriptInterpreter.AssemblyReferences)
-            .WithImports(CSharpScriptInterpreter.ImplicitImports)
-            .WithEmitDebugInformation(commandLineOptions.RunMode == RunMode.Debug)
-            .WithFilePath(SourceFilePath)
-            .WithFileEncoding(Encoding.UTF8)
-            .WithSourceResolver(new HeadlessCSharpScriptSourceResolver(new() { { SourceFilePath, script } })));
+    private CSharpCompilationOptions CompilationOptions { get; } = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+        //.WithAllowUnsafe() // TODO - Add command line option to allow unsafe
+        //.WithPlatform() // TODO - Add command line option for target platform
+        .WithOptimizationLevel(commandLineOptions.RunMode == RunMode.Debug ? OptimizationLevel.Debug : OptimizationLevel.Release)
+        .WithConcurrentBuild(true);
 
-    //private CSharpCompilation CreateCompilationFromMethod(string source) =>
-    //    CSharpCompilation.Create(Guid.NewGuid().ToString().Replace("-", "")) // TODO - allow for explicit naming of scripts through command line. Named scripts can be cached and re-run
-    //        .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-    //        .WithReferences(CSharpScriptInterpreter.AssemblyReferences)
-    //        .AddSyntaxTrees(SyntaxFactory.ParseSyntaxTree(source));
+    private CSharpCompilation CreateCompilation(params SyntaxTree[] syntaxTree) => CSharpCompilation.Create(SourceFilePath, syntaxTree, References, CompilationOptions);
+
+    private static (ImmutableArray<Diagnostic> diagnostics, byte[] bytes) EmitCompilation(CSharpCompilation compilation)
+    {
+        using var assemblyStream = new MemoryStream();
+
+        // TODO - this doesn't cover all bases. Code can compile with hints/warnings but they will not be shown to the user
+        var emitResult = compilation.Emit(assemblyStream);
+        if (!emitResult.Success)
+            throw new CompilationErrorException("If you see this error then I haven't finished the compiler rework yet! (not even close)", emitResult.Diagnostics);
+        
+        return (emitResult.Diagnostics, assemblyStream.ToArray()); // TODO - might be worth revisiting this depending on performance
+    }
 }

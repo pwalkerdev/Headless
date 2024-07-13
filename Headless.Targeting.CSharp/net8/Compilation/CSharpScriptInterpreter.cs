@@ -14,7 +14,7 @@ public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSha
 
         // TODO: This method is in need of a re-work... Although it does work, I have some ideas to make it faster, more flexible and most importantly, easier to read. It was originally copied from a different project of mine and well yeah you will probably be able to tell from all the stuff it doesn't need to do.
         if (!commandLineOptions.LanguageVersion.TryResolveLanguageVersion(out var languageVersion))
-            return CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", null);
+            return CompileResult.Create(false, $"Unrecognised value: \"{commandLineOptions.LanguageVersion}\" specified for parameter: \"LanguageVersion\"", default(Script<object?>));
 
         var filePath = interpreterOptions.FileName ?? commandLineOptions.InputMode switch
         {
