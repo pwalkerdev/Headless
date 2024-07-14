@@ -4,8 +4,8 @@ namespace Headless.Targeting.CSharp.Compilation;
 [SupportedTargets("CSharp", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
 public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSharpScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
 {
-    internal static string[] ImplicitImports { get; } = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq"];
-    internal static MetadataReference[] AssemblyReferences { get; } = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.ExportedTypes.Any(t => ImplicitImports.Contains(t.Namespace))).Select(RoslynScriptingExtensions.GetMetadataReference).OfType<MetadataReference>().ToArray();
+    internal static string[] ImplicitImports { get; } = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq", "System.Runtime"];
+    internal static MetadataReference[] AssemblyReferences { get; } = AppDomain.CurrentDomain.GetAssemblies().Where(a => ImplicitImports.Contains(a.GetName().Name) || a.ExportedTypes.Any(t => ImplicitImports.Contains(t.Namespace))).Select(RoslynScriptingExtensions.GetMetadataReference).OfType<MetadataReference>().ToArray();
 
     public async Task<ICompileResult> Compile(string script)
     {
@@ -112,7 +112,7 @@ internal class HeadlessCSharpScriptSourceResolver(Dictionary<string, string>? sc
     private readonly SourceFileResolver _baseResolver = new([], AppContext.BaseDirectory);
     private readonly Dictionary<string, string> _inMemorySourceFiles = scriptsByName ?? [];
 
-    public override string? NormalizePath(string path, string? baseFilePath) => path.StartsWith("Headless+") ? path : _baseResolver.NormalizePath(path, baseFilePath);
+    public override string? NormalizePath(string path, string? baseFilePath) => _inMemorySourceFiles.ContainsKey(path) ? path : _baseResolver.NormalizePath(path, baseFilePath);
     public override string? ResolveReference(string path, string? baseFilePath) => _inMemorySourceFiles.ContainsKey(path) ? path : _baseResolver.ResolveReference(path, baseFilePath);
     public override Stream OpenRead(string resolvedPath) => _inMemorySourceFiles.TryGetValue(resolvedPath, out var content) ? new MemoryStream(Encoding.UTF8.GetBytes(content)) : _baseResolver.OpenRead(resolvedPath);
 

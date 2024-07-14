@@ -1,4 +1,6 @@
 // ReSharper disable once CheckNamespace
+using Microsoft.CodeAnalysis.Emit;
+
 namespace Headless.Targeting.CSharp.Compilation;
 
 [SupportedTargets("CSharp-new", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
@@ -8,8 +10,8 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
     {
         try
         {
-            var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion);
-            var syntaxTree = interpreterOptions.ImplementationScheme switch
+            var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion).WithKind(SourceCodeKind.Regular);
+            var syntaxTree = (interpreterOptions.ImplementationScheme switch
             {
                 CSharpScriptImplementationScheme.Expression => SyntaxTreeBuilder.FromExpression(script, parseOptions),
                 CSharpScriptImplementationScheme.SingleStatement => SyntaxTreeBuilder.FromStatement(script, parseOptions),
@@ -19,13 +21,13 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
                 CSharpScriptImplementationScheme.Class => SyntaxTreeBuilder.FromClass(script, parseOptions),
                 CSharpScriptImplementationScheme.Namespace => SyntaxTreeBuilder.FromNamespace(script, parseOptions),
                 _ => throw new NotImplementedException()
-            };
+            }).WithFilePath(SourceFilePath);
 
             var compilation = CreateCompilation(syntaxTree);
 
-            var (diagnostics, bytes) = EmitCompilation(compilation);
-            if (commandLineOptions.RunMode == RunMode.CompileOnly)
-                return await Task.FromResult<ICompileResult>(CompileResult.Create(true, string.Join(Environment.NewLine, diagnostics), default(Assembly)));
+            var (success, diagnostics, bytes) = EmitCompilation(compilation);
+            if (!success || commandLineOptions.RunMode == RunMode.CompileOnly)
+                return await Task.FromResult<ICompileResult>(CompileResult.Create(success, string.Join(Environment.NewLine, diagnostics), default(Assembly)));
 
             var outputAssembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(bytes));
             return await Task.FromResult<ICompileResult>(CompileResult.Create(true, string.Join(Environment.NewLine, diagnostics), outputAssembly));
@@ -47,15 +49,34 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
 
         try
         {
-            var type = ass.GetTypes().First(t => t.IsClass && (!t.IsAbstract || t.IsSealed)); // Static classes are abstract and sealed
-            var instance = !type.IsAbstract ? Activator.CreateInstance(type) : null;
-            var result = type.GetMethods(BindingFlags.Public | BindingFlags.Static).FirstOrDefault()?.Invoke(instance, null);
+            var entryInfo = ass.GetTypes().Where(t => t.IsClass && (!t.IsAbstract || t.IsSealed))   // Static classes are abstract and sealed
+                .Select(t => new 
+                {
+                    Type = t,                                                                       // Fetch each type
+                    MethodInfo = t.GetMethods().Select(m => new
+                    {
+                        Method = m,                                                                 // Fetch each type's methods
+                        EntryPointAttribute = m.GetCustomAttribute<Framework.EntryPointAttribute>() // Fetch each member's EntryPointAttribute (if specified)
+                    })
+                    .OrderBy(tpl => tpl.EntryPointAttribute == null)                                // Order methods by the specification of EntryPointAttribute
+                    .FirstOrDefault()                                                               // Take first
+                })
+                .Where(info => info.MethodInfo != null)
+                .OrderBy(info => info.MethodInfo?.EntryPointAttribute == null)                      // Order types by their first method's entry point attribute instance
+                .First();                                                                           // First will be the explicit entry point or the first exported type's first method
+
+            var instance = !entryInfo.Type.IsAbstract ? Activator.CreateInstance(entryInfo.Type) : null;
+            var result = entryInfo.MethodInfo!.Method.Invoke(instance, entryInfo.MethodInfo.EntryPointAttribute?.Arguments);
 
             return await Task.FromResult(InvocationResult<TResult?>.Create(true, string.Empty, (TResult?)result));
         }
+        catch (Exception e) when (e is { InnerException: { } ie })
+        {
+            return await Task.FromResult(InvocationResult<TResult?>.Create(false, new StringBuilder().AppendLine(ie.Message).AppendLine(ie.StackTrace), default));
+        }
         catch (Exception e)
         {
-            return await Task.FromResult(InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}").AppendLine(e.StackTrace), default));
+            return await Task.FromResult(InvocationResult<TResult?>.Create(false, new StringBuilder().AppendLine(e.Message).AppendLine(e.StackTrace), default));
         }
     }
 
@@ -68,25 +89,23 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         _ => $"Headless+{Guid.NewGuid()}.cs"
     };
     
+    private static string[] Usings => CSharpScriptInterpreter.ImplicitImports; // TODO - Default to a list of all implicit namespaces with commandline argumnt to override
     private static MetadataReference[] References => CSharpScriptInterpreter.AssemblyReferences; // TODO - Update static references to include all assemblies in target platform
 
     private CSharpCompilationOptions CompilationOptions { get; } = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         //.WithAllowUnsafe() // TODO - Add command line option to allow unsafe
         //.WithPlatform() // TODO - Add command line option for target platform
+        .WithUsings(Usings)
         .WithOptimizationLevel(commandLineOptions.RunMode == RunMode.Debug ? OptimizationLevel.Debug : OptimizationLevel.Release)
         .WithConcurrentBuild(true);
 
     private CSharpCompilation CreateCompilation(params SyntaxTree[] syntaxTree) => CSharpCompilation.Create(SourceFilePath, syntaxTree, References, CompilationOptions);
 
-    private static (ImmutableArray<Diagnostic> diagnostics, byte[] bytes) EmitCompilation(CSharpCompilation compilation)
+    private static (bool success, ImmutableArray<Diagnostic> diagnostics, byte[] bytes) EmitCompilation(CSharpCompilation compilation)
     {
         using var assemblyStream = new MemoryStream();
-
-        // TODO - this doesn't cover all bases. Code can compile with hints/warnings but they will not be shown to the user
-        var emitResult = compilation.Emit(assemblyStream);
-        if (!emitResult.Success)
-            throw new CompilationErrorException("If you see this error then I haven't finished the compiler rework yet! (not even close)", emitResult.Diagnostics);
+        var emitResult = compilation.Emit(assemblyStream, options: new EmitOptions(debugInformationFormat: DebugInformationFormat.Embedded));
         
-        return (emitResult.Diagnostics, assemblyStream.ToArray()); // TODO - might be worth revisiting this depending on performance
+        return (emitResult.Success, emitResult.Diagnostics, assemblyStream.ToArray()); // TODO - might be worth revisiting this depending on performance
     }
 }
