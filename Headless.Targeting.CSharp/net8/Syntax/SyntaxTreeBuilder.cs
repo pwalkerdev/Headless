@@ -68,7 +68,14 @@ public static class SyntaxTreeBuilder
             .Replace("{{CLASS_NAME}}", "EmittedMethodContainerClass")
             .Replace("{{METHOD_IMPLEMENTATION}}", method);
 
-        return BuildSyntaxTree(script, options);
+        var result = BuildSyntaxTree(script, options);
+        var entryPoint = result.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault(m => m is { AttributeLists.Count: 1 } && m.AttributeLists.ToString() == "[EntryPointAttribute]");
+        if (entryPoint is null || entryPoint.Modifiers.All(m => m.ToString() != "public") == true)
+        {
+            throw new Exception("Entry point method must be public (at the moment but I might remove this limitation later...)"); // TODO: Create an exception class for compilation / semantic errors
+        }
+
+        return result;
     }
 
     public static SyntaxTree FromClass(string @class, CSharpParseOptions options)
