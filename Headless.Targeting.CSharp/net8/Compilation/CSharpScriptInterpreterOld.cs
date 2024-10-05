@@ -1,8 +1,8 @@
 ﻿// ReSharper disable once CheckNamespace
 namespace Headless.Targeting.CSharp.Compilation;
 
-[SupportedTargets("CSharp", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
-public class CSharpScriptInterpreter(CommandLineOptions commandLineOptions, CSharpScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
+[SupportedTargets("CSharp-Obsolete", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
+public class CSharpScriptInterpreterOld(CommandLineOptions commandLineOptions, CSharpScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
 {
     internal static string[] ImplicitImports { get; } = ["Headless.Targeting.CSharp.Framework", "System", "System.Collections", "System.Collections.Generic", "System.Linq", "System.Runtime"];
     internal static MetadataReference[] AssemblyReferences { get; } = AppDomain.CurrentDomain.GetAssemblies().Where(a => ImplicitImports.Contains(a.GetName().Name) || a.ExportedTypes.Any(t => ImplicitImports.Contains(t.Namespace))).Select(RoslynScriptingExtensions.GetMetadataReference).OfType<MetadataReference>().ToArray();
