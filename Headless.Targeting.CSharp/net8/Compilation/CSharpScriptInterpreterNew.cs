@@ -23,7 +23,7 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
                 _ => throw new NotImplementedException()
             }).WithFilePath(SourceFilePath);
 
-            var compilation = CreateCompilation(syntaxTree);
+            var compilation = CreateCompilation([SyntaxTreeBuilder.FromNamespace(string.Join(Environment.NewLine, Usings.Select(u => $"global using {u};")), parseOptions).WithFilePath(".usings.cs"), syntaxTree]);
 
             var (success, diagnostics, bytes) = EmitCompilation(compilation);
             if (!success || commandLineOptions.RunMode == RunMode.CompileOnly)
@@ -89,13 +89,13 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         _ => $"Headless+{Guid.NewGuid()}.cs"
     };
     
-    private static string[] Usings => CSharpScriptInterpreter.ImplicitImports; // TODO - Default to a list of all implicit namespaces with commandline argumnt to override
-    private static MetadataReference[] References => CSharpScriptInterpreter.AssemblyReferences; // TODO - Update static references to include all assemblies in target platform
+    private static string[] Usings => CSharpScriptInterpreter.ImplicitImports; // TODO: Default to a list of all implicit namespaces with commandline argumnt to override
+    private static MetadataReference[] References => CSharpScriptInterpreter.AssemblyReferences; // TODO: Update static references to include all assemblies in target platform
 
     private CSharpCompilationOptions CompilationOptions { get; } = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-        //.WithAllowUnsafe() // TODO - Add command line option to allow unsafe
-        //.WithPlatform() // TODO - Add command line option for target platform
-        .WithUsings(Usings)
+        //.WithAllowUnsafe() // TODO: Add command line option to allow unsafe
+        //.WithPlatform() // TODO: Add command line option for target platform
+        .WithUsings(Usings) // NOTE: The .WithUsings() method only affects compilations with kind SourceCodeKind.Script - this is important information that is not documented :)
         .WithOptimizationLevel(commandLineOptions.RunMode == RunMode.Debug ? OptimizationLevel.Debug : OptimizationLevel.Release)
         .WithConcurrentBuild(true);
 
@@ -106,6 +106,6 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         using var assemblyStream = new MemoryStream();
         var emitResult = compilation.Emit(assemblyStream, options: new EmitOptions(debugInformationFormat: DebugInformationFormat.Embedded));
         
-        return (emitResult.Success, emitResult.Diagnostics, assemblyStream.ToArray()); // TODO - might be worth revisiting this depending on performance
+        return (emitResult.Success, emitResult.Diagnostics, assemblyStream.ToArray()); // TODO: might be worth revisiting this depending on performance
     }
 }

@@ -13,6 +13,7 @@ public static class SyntaxTreeBuilder
         [EntryPointAttribute]
         public static object {{METHOD_NAME}}()
         {
+#line 1
             return {{EXPRESSION_IMPLEMENTATION}};
         }
     }
@@ -36,6 +37,7 @@ public static class SyntaxTreeBuilder
         [EntryPointAttribute]
         public static void {{METHOD_NAME}}()
         {
+#line 1
             {{STATEMENT_IMPLEMENTATION}};
         }
     }
@@ -57,6 +59,7 @@ public static class SyntaxTreeBuilder
     public class {{CLASS_NAME}}
     {
         [EntryPointAttribute]
+#line 1
         {{METHOD_IMPLEMENTATION}}
     }
 }";
@@ -73,6 +76,7 @@ public static class SyntaxTreeBuilder
         const string template =
 @"namespace {{NAMESPACE_NAME}}
 {
+#line 1
     {{CLASS_IMPLEMENTATION}}
 }";
 
