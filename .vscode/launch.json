@@ -16,7 +16,7 @@
             "preLaunchTask": "Build Solution",
             "program": "${workspaceFolder}${/}Headless${/}bin${/}Debug${/}net8.0${/}Headless.dll",
             //"args": ["-m", "Debug", "-l", "CSharp", "-i", "stream", "-t", "asdf"], // stable c#  script runner
-            "args": ["-m", "Debug", "-l", "CSharp-new", "-i", "stream", "-t", "asdf", "--cs-impl-scheme", "Method"], // new c# script runner (in development)
+            "args": ["-m", "Debug", "-l", "CSharp", "-i", "stream", "-t", "asdf", "--cs-impl-scheme", "Method"], // new c# script runner (in development)
             "cwd": "${workspaceFolder}${/}Headless",
             "console": "integratedTerminal",
             "stopAtEntry": false

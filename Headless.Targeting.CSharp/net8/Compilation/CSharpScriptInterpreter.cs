@@ -1,9 +1,9 @@
-// ReSharper disable once CheckNamespace
+﻿// ReSharper disable once CheckNamespace
 using Microsoft.CodeAnalysis.Emit;
 
 namespace Headless.Targeting.CSharp.Compilation;
 
-[SupportedTargets("CSharp-new", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
+[SupportedTargets("CSharp", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
 public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, CSharpScriptInterpreterOptions interpreterOptions) : IScriptCompiler, IScriptInvoker
 {
     public async Task<ICompileResult> Compile(string script)
@@ -89,8 +89,8 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         _ => $"Headless+{Guid.NewGuid()}.cs"
     };
     
-    private static string[] Usings => CSharpScriptInterpreter.ImplicitImports; // TODO: Default to a list of all implicit namespaces with commandline argumnt to override
-    private static MetadataReference[] References => CSharpScriptInterpreter.AssemblyReferences; // TODO: Update static references to include all assemblies in target platform
+    private static string[] Usings => CSharpScriptInterpreterOld.ImplicitImports; // TODO: Default to a list of all implicit namespaces with commandline argumnt to override
+    private static MetadataReference[] References => CSharpScriptInterpreterOld.AssemblyReferences; // TODO: Update static references to include all assemblies in target platform
 
     private CSharpCompilationOptions CompilationOptions { get; } = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         //.WithAllowUnsafe() // TODO: Add command line option to allow unsafe
