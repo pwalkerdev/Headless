@@ -8,7 +8,7 @@ public class CommandLineOptions
     public string Script { get; set; } = string.Empty;
     public RunMode RunMode { get; set; }
     public string Postamble { get; set; } = string.Empty;
-    // TODO - add command line option for compiler result verbosity, ie.  hints, warnings, errors, etc.
+    // TODO: add command line option for compiler result verbosity, ie.  hints, warnings, errors, etc.
 
     public string Language { get; set; } = string.Empty;
     public string LanguageVersion { get; set; } = "latest";

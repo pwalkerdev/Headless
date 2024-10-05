@@ -3,7 +3,8 @@
     "Headless": {
       "commandName": "Project",
       //"commandLineArgs": "-l JavaScript -i stream -t asdf -lv latest --js-strict"
-      "commandLineArgs": "-m Debug -l CSharp -i stream -t asdf"
+      //"commandLineArgs": "-m Debug -l CSharp -i stream -t asdf"
+      "commandLineArgs": "-m Debug -l CSharp-new -i stream -t asdf --cs-impl-scheme Method"
     }
   }
 }
