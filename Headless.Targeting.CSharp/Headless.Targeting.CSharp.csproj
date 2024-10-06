@@ -23,6 +23,7 @@
     <Using Include="Microsoft.CodeAnalysis.CSharp" />
     <Using Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
     <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
+    <Using Include="Microsoft.CodeAnalysis.Emit" />
     <Using Include="Microsoft.CodeAnalysis.Scripting" />
     <Using Include="System" />
     <Using Include="System.Collections.Generic" />
