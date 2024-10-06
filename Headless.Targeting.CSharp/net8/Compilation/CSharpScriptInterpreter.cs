@@ -1,6 +1,4 @@
 ﻿// ReSharper disable once CheckNamespace
-using Microsoft.CodeAnalysis.Emit;
-
 namespace Headless.Targeting.CSharp.Compilation;
 
 [SupportedTargets("CSharp", versions: "latest|3|4|5|6|7|7.1|7.2|7.3|8|9|10|11|12", runtimes: "any|net80")]
@@ -99,7 +97,7 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         .WithOptimizationLevel(commandLineOptions.RunMode == RunMode.Debug ? OptimizationLevel.Debug : OptimizationLevel.Release)
         .WithConcurrentBuild(true);
 
-    private CSharpCompilation CreateCompilation(params SyntaxTree[] syntaxTree) => CSharpCompilation.Create(SourceFilePath, syntaxTree, References, CompilationOptions);
+    private CSharpCompilation CreateCompilation(params SyntaxTree[] syntaxTree) => CSharpCompilation.Create($"{Path.GetFileNameWithoutExtension(SourceFilePath)}.dll", syntaxTree, References, CompilationOptions);
 
     private static (bool success, ImmutableArray<Diagnostic> diagnostics, byte[] bytes) EmitCompilation(CSharpCompilation compilation)
     {
