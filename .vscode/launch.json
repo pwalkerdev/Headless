@@ -15,7 +15,7 @@
             "request": "launch",
             "preLaunchTask": "Build Solution",
             "program": "${workspaceFolder}${/}Headless${/}bin${/}Debug${/}net8.0${/}Headless.dll",
-            "args": ["-m", "Debug", "-l", "CSharp", "-i", "stream", "-t", "asdf"],
+            "args": ["-m", "Debug", "-l", "CSharp", "-i", "stream", "-t", "asdf", "--cs-impl-scheme", "Method"],
             "cwd": "${workspaceFolder}${/}Headless",
             "console": "integratedTerminal",
             "stopAtEntry": false

@@ -1,5 +1,4 @@
-﻿// ReSharper disable once CheckNamespace
-namespace Headless.Targeting.CSharp.Extensions;
+﻿namespace Headless.Targeting.CSharp.Extensions;
 
 internal static class RoslynScriptingExtensions
 {
@@ -15,5 +14,11 @@ internal static class RoslynScriptingExtensions
 
     public static Type? ResolveParameterConcreteType(this SemanticModel semanticModel, BaseParameterSyntax paramSyntax) => semanticModel.ResolveParameterConcreteTypeName(paramSyntax) is { Length: > 0 } tn ? Type.GetType(tn) : null;
 
+#if NET
     public static unsafe MetadataReference? GetMetadataReference(this Assembly assembly) => assembly.TryGetRawMetadata(out var blob, out var length) ? AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length)).GetReference() : null;
+#else
+    public static MetadataReference? GetMetadataReference(this Assembly assembly) => assembly.GetManifestResourceStream(assembly.ManifestModule.Name) is { } manifestStream
+        ? AssemblyMetadata.Create(ModuleMetadata.CreateFromStream(manifestStream)).GetReference()
+        : null; //throw new MissingManifestResourceException($"Unable to create MetadataReference for assembly: \"{assembly.FullName}\"");
+#endif
 }
