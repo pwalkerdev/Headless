@@ -52,7 +52,9 @@ internal static class ServiceCollectionExtensions
         return services
             .Configure<CommandLineOptions>(hostBuilder.Configuration)
             .Configure<JavaScriptInterpreterOptions>(hostBuilder.Configuration.GetSection("JavaScriptInterpreter"))
+            .Configure<CSharpScriptInterpreterOptions>(hostBuilder.Configuration.GetSection("CSharpScriptInterpreter"))
             .AddSingleton<CommandLineOptions>(provider => provider.GetRequiredService<IOptions<CommandLineOptions>>().Value)
+            .AddSingleton<CSharpScriptInterpreterOptions>(provider => provider.GetRequiredService<IOptions<CSharpScriptInterpreterOptions>>().Value)
             .AddSingleton<JavaScriptInterpreterOptions>(provider => provider.GetRequiredService<IOptions<JavaScriptInterpreterOptions>>().Value);
     }
 
