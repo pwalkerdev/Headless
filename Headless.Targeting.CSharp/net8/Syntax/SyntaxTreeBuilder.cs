@@ -93,12 +93,6 @@ public static class SyntaxTreeBuilder
         return BuildSyntaxTree(script, options);
     }
 
-    // public static SyntaxTree FromClass(string @class, CSharpParseOptions options)
-    // {
-    //     var script = "namespace Headless.Targeting.CSharp.Framework;\r\n\r\n" + @class;
-    //     return BuildSyntaxTree(script, options);
-    // }
-
     public static SyntaxTree FromNamespace(string @namespace, CSharpParseOptions options)
     {
         return BuildSyntaxTree(@namespace, options);
