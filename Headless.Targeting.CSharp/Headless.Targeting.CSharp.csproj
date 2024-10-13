@@ -63,5 +63,7 @@
   <ItemGroup Condition="'$(TargetFramework)'=='net48'">
     <Compile Remove="net8\**\*" />
     <None Include="net8\**\*" />
+
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 </Project>
