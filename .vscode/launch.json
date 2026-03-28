@@ -18,7 +18,7 @@
             "args": ["-m", "Debug", "-l", "CSharp", "-i", "stream", "-t", "asdf", "--cs-impl-scheme", "Method"],
             "cwd": "${workspaceFolder}${/}Headless",
             "console": "integratedTerminal",
-            "stopAtEntry": false
+            "stopAtEntry": false,
         },
         {
             "name": "Re-Launch (Don't Compile)",

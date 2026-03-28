@@ -1,4 +1,5 @@
 ﻿var host = Host.CreateDefaultBuilder()
+    .ConfigureSerilog()
     .ConfigureAppConfiguration(ConfigurationBuilderExtensions.AddHeadlessCommandLineMappings)
     .ConfigureServices(ServiceCollectionExtensions.AddHeadlessServices)
     .Build();
@@ -13,7 +14,7 @@ var script = options.InputMode switch
         var result = new StringBuilder();
         while (Console.ReadLine() is { } ln && ln != options.Postamble)
             result.AppendLine(ln);
-        
+
         ConsoleExtensions.BlankOutLastLine(options.Postamble.Length); // If the input is streamed, the "finish" token is written to the console at the end. This hides it
         ConsoleExtensions.ShiftCursorUp(1);
         return result;
@@ -21,13 +22,14 @@ var script = options.InputMode switch
     _ => new StringBuilder(options.Script),
 };
 
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 if (script.Length == 0)
 {
-    Console.Error.WriteLine("Failed to receive script from caller!");
+    logger.LogError("Failed to receive script from caller!");
     return;
 }
 
-Console.Out.WriteLine($"{Environment.NewLine}-------------OUTPUT-------------{Environment.NewLine}");
+logger.LogInformation("-------------HEADLESS-----------");
 
 var compileTaskTimedResult = await scope.ServiceProvider.GetRequiredKeyedService<IScriptCompiler>(options.TargetKey).Compile(script.ToString()).WithTimer();
 if (compileTaskTimedResult.TaskResult.IsSuccess)
@@ -35,14 +37,14 @@ if (compileTaskTimedResult.TaskResult.IsSuccess)
     var invokeTaskTimedResult = await scope.ServiceProvider.GetRequiredKeyedService<IScriptInvoker>(options.TargetKey).Run<object>(compileTaskTimedResult.TaskResult).WithTimer();
     if (invokeTaskTimedResult.TaskResult.IsSuccess)
     {
-        Console.Out.WriteLine($"COMPILED IN: {compileTaskTimedResult.TaskDuration:ss\\.fffffff} s");
-        Console.Out.WriteLine($"EXECUTED IN: {invokeTaskTimedResult.TaskDuration:ss\\.fffffff} s{Environment.NewLine}");
-        Console.Out.WriteLine($"RESULT VALUE: {invokeTaskTimedResult.TaskResult.Result}");
+        logger.LogInformation("COMPILED IN: {CompileDuration}s", compileTaskTimedResult.TaskDuration.ToString("ss\\.fffffff"));
+        logger.LogInformation("EXECUTED IN: {InvocationDuration}s", invokeTaskTimedResult.TaskDuration.ToString("ss\\.fffffff"));
+        logger.LogInformation("RESULT VALUE: {Result}", invokeTaskTimedResult.TaskResult.Result);
     }
     else
-        Console.Error.WriteLine(invokeTaskTimedResult.TaskResult.Messages);
+        logger.LogError("{ErrorMessasges}", invokeTaskTimedResult.TaskResult.Messages);
 }
 else
-    Console.Error.WriteLine($"{compileTaskTimedResult.TaskResult.Messages}");
+    logger.LogError("{ErrorMessasges}", compileTaskTimedResult.TaskResult.Messages);
 
-Console.Out.WriteLine($"{Environment.NewLine}-------------FINISH-------------");
+logger.LogInformation("-------------FINISH-------------");

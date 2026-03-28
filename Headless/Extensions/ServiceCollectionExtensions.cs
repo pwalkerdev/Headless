@@ -12,7 +12,7 @@ internal static class ServiceCollectionExtensions
             return alreadyLoadedAssembly;
 
         var name = new AssemblyName(args.Name).Name;
-        var embeddedAssemblies = Assembly.GetEntryAssembly()?.GetManifestResourceNames().ToArray() ?? Array.Empty<string>();
+        var embeddedAssemblies = Assembly.GetEntryAssembly()?.GetManifestResourceNames() ?? Array.Empty<string>();
         if (embeddedAssemblies.FirstOrDefault(n => n == $"{name}.dll") is { Length: > 0 } assemblyResourceName
             && Assembly.GetEntryAssembly()?.GetManifestResourceStream(assemblyResourceName) is { Length: > 0 } stream)
         {
@@ -25,7 +25,7 @@ internal static class ServiceCollectionExtensions
         return File.Exists(assemblyFileName) ? Assembly.LoadFrom(assemblyFileName) : null;
     }
 
-    public static IServiceCollection AddHeadlessServices(this IServiceCollection services, HostBuilderContext hostBuilder)
+    public static IServiceCollection AddHeadlessServices(this IServiceCollection services, IConfiguration configuration)
     {
         AppDomain.CurrentDomain.AssemblyResolve += ResolveHeadlessServiceAssembly;
 
@@ -42,7 +42,7 @@ internal static class ServiceCollectionExtensions
             })
             .Where(infos => infos.SupportedTargets is { Length: > 0 })
             .ToArray();
-        
+
         // This will register all services by their interface and keyed by their supported target attributes
         // If a service inherits more than 1 recognised interface and/or more than 1 supported target,
         // all requests for any of the matching criteria will return the same instance per DI scope
@@ -50,13 +50,13 @@ internal static class ServiceCollectionExtensions
             _ = services.Any(s => s.IsKeyedService && s.KeyedImplementationType == serviceInfo.Type) ? services.AddKeyedScoped(@interface, key, (p, _) => p.GetKeyedServices(serviceInfo.ImplementedInterfaces[0], serviceInfo.SupportedTargets![0]).Single(s => s != null)!) : services.AddKeyedScoped(@interface, key, serviceInfo.Type);
 
         return services
-            .Configure<CommandLineOptions>(hostBuilder.Configuration)
-            .Configure<JavaScriptInterpreterOptions>(hostBuilder.Configuration.GetSection("JavaScriptInterpreter"))
-            .Configure<CSharpScriptInterpreterOptions>(hostBuilder.Configuration.GetSection("CSharpScriptInterpreter"))
+            .Configure<CommandLineOptions>(configuration)
+            .Configure<JavaScriptInterpreterOptions>(configuration.GetSection("JavaScriptInterpreter"))
+            .Configure<CSharpScriptInterpreterOptions>(configuration.GetSection("CSharpScriptInterpreter"))
             .AddSingleton<CommandLineOptions>(provider => provider.GetRequiredService<IOptions<CommandLineOptions>>().Value)
             .AddSingleton<CSharpScriptInterpreterOptions>(provider => provider.GetRequiredService<IOptions<CSharpScriptInterpreterOptions>>().Value)
             .AddSingleton<JavaScriptInterpreterOptions>(provider => provider.GetRequiredService<IOptions<JavaScriptInterpreterOptions>>().Value);
     }
 
-    public static void AddHeadlessServices(HostBuilderContext hostBuilder, IServiceCollection services) => services.AddHeadlessServices(hostBuilder);
+    public static void AddHeadlessServices(HostBuilderContext hostBuilder, IServiceCollection services) => services.AddHeadlessServices(hostBuilder.Configuration);
 }

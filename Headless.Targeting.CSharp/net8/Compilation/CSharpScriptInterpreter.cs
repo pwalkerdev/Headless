@@ -48,7 +48,7 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         try
         {
             var entryInfo = ass.GetTypes().Where(t => t.IsClass && (!t.IsAbstract || t.IsSealed))   // Static classes are abstract and sealed
-                .Select(t => new 
+                .Select(t => new
                 {
                     Type = t,                                                                       // Fetch each type
                     MethodInfo = t.GetMethods().Select(m => new
@@ -86,7 +86,7 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
         ScriptInputMode.Stream => $"{commandLineOptions.Postamble}.cs",
         _ => $"Headless+{Guid.NewGuid()}.cs"
     };
-    
+
     private static string[] Usings => CSharpScriptInterpreterOld.ImplicitImports; // TODO: Default to a list of all implicit namespaces with commandline argumnt to override
     private static MetadataReference[] References => CSharpScriptInterpreterOld.AssemblyReferences; // TODO: Update static references to include all assemblies in target platform
 
@@ -103,7 +103,7 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
     {
         using var assemblyStream = new MemoryStream();
         var emitResult = compilation.Emit(assemblyStream, options: new EmitOptions(debugInformationFormat: DebugInformationFormat.Embedded));
-        
+
         return (emitResult.Success, emitResult.Diagnostics, assemblyStream.ToArray()); // TODO: might be worth revisiting this depending on performance
     }
 }
