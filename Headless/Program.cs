@@ -35,7 +35,7 @@ logger.LogInformation("-------------HEADLESS-----------");
 if (!string.IsNullOrEmpty(options.CSharpScriptInterpreter.FileName))
     logger.LogInformation("Processing file: `{FileName}`", options.CSharpScriptInterpreter.FileName);
 
-logger.LogInformation("Beginning operation: `{RunMode}`", options.RunMode);
+logger.LogInformation("RUN MODE:        {RunMode}", options.RunMode);
 
 var compileTaskTimedResult = await scope.ServiceProvider.GetRequiredKeyedService<IScriptCompiler>(options.TargetKey).Compile(script.ToString()).WithTimer();
 if (compileTaskTimedResult.TaskResult.IsSuccess)
@@ -43,9 +43,10 @@ if (compileTaskTimedResult.TaskResult.IsSuccess)
     var invokeTaskTimedResult = await scope.ServiceProvider.GetRequiredKeyedService<IScriptInvoker>(options.TargetKey).Run<object>(compileTaskTimedResult.TaskResult).WithTimer();
     if (invokeTaskTimedResult.TaskResult.IsSuccess)
     {
-        logger.LogInformation("COMPILED IN: {CompileDuration}s", compileTaskTimedResult.TaskDuration.ToString("ss\\.fffffff"));
-        logger.LogInformation("EXECUTED IN: {InvocationDuration}s", invokeTaskTimedResult.TaskDuration.ToString("ss\\.fffffff"));
-        logger.LogInformation("RESULT VALUE: {Result}", invokeTaskTimedResult.TaskResult.Result);
+        logger.LogInformation("COMPILED IN:     {CompileDuration}s", compileTaskTimedResult.TaskDuration.ToString("ss\\.fffffff"));
+        logger.LogInformation("EXECUTED IN:     {InvocationDuration}s", invokeTaskTimedResult.TaskDuration.ToString("ss\\.fffffff"));
+        logger.LogInformation("RESULT TYPE:     {ResultType}", invokeTaskTimedResult.TaskResult.ResultType);
+        logger.LogInformation("RESULT VALUE:    {Result}", invokeTaskTimedResult.TaskResult.Result);
     }
     else
         logger.LogError("{ErrorMessasges}", invokeTaskTimedResult.TaskResult.Messages);

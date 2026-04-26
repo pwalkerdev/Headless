@@ -86,23 +86,23 @@ public class CSharpScriptInterpreterOld(CommandLineOptions commandLineOptions, C
     public async Task<IInvocationResult<TResult?>> Run<TResult>(ICompileResult compileResult)
     {
         if (compileResult is not CompileResult { IsSuccess: true, RoslynScript: { } rs })
-            return InvocationResult<TResult?>.Create(false, "Unable to invoke script due to compilation errors!", default);
+            return InvocationResult<TResult?>.Create(false, "Unable to invoke script due to compilation errors!", null, default);
 
         try
         {
             var delegateType = (await rs.RunAsync()).ReturnValue;
             var @delegate = delegateType.GetType().GetMethod("Invoke");
-            var result = (TResult?)@delegate?.Invoke(delegateType, null);
+            var result = (TResult?)@delegate!.Invoke(delegateType, null);
 
-            return InvocationResult<TResult?>.Create(true, string.Empty, result);
+            return InvocationResult<TResult?>.Create(true, string.Empty, @delegate.ReturnType, result);
         }
         catch (Exception e) when (e is { InnerException: { } ie })
         {
-            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {ie.Message}{Environment.NewLine}").AppendLine(ie.StackTrace), default);
+            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {ie.Message}{Environment.NewLine}").AppendLine(ie.StackTrace), null, default);
         }
         catch (Exception e)
         {
-            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}{Environment.NewLine}").AppendLine(e.StackTrace), default);
+            return InvocationResult<TResult?>.Create(false, new StringBuilder($"An exception was thrown by the target of invocation. Message: {e.Message}{Environment.NewLine}").AppendLine(e.StackTrace), null, default);
         }
     }
 }

@@ -43,7 +43,7 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
     public async Task<IInvocationResult<TResult?>> Run<TResult>(ICompileResult compileResult)
     {
         if (compileResult is not CompileResult { IsSuccess: true, OutputAssebly: { } ass })
-            return InvocationResult<TResult?>.Create(false, "Unable to invoke script due to compilation errors!", default);
+            return InvocationResult<TResult?>.Create(false, "Unable to invoke script due to compilation errors!", null, default);
 
         try
         {
@@ -64,17 +64,18 @@ public class CSharpScriptInterpreterNew(CommandLineOptions commandLineOptions, C
                 .First();                                                                           // First will be the explicit entry point or the first exported type's first method
 
             var instance = !entryInfo.Type.IsAbstract ? Activator.CreateInstance(entryInfo.Type) : null;
+            var resultType = entryInfo.MethodInfo!.Method.ReturnType;
             var result = entryInfo.MethodInfo!.Method.Invoke(instance, entryInfo.MethodInfo.EntryPointAttribute?.Arguments);
 
-            return await Task.FromResult(InvocationResult<TResult?>.Create(true, string.Empty, (TResult?)result));
+            return await Task.FromResult(InvocationResult<TResult?>.Create(true, string.Empty, resultType, (TResult?)result));
         }
         catch (Exception e) when (e is { InnerException: { } ie })
         {
-            return await Task.FromResult(InvocationResult<TResult?>.Create(false, new StringBuilder().AppendLine(ie.Message).AppendLine(ie.StackTrace), default));
+            return await Task.FromResult(InvocationResult<TResult?>.Create(false, new StringBuilder().AppendLine(ie.Message).AppendLine(ie.StackTrace), null, default));
         }
         catch (Exception e)
         {
-            return await Task.FromResult(InvocationResult<TResult?>.Create(false, new StringBuilder().AppendLine(e.Message).AppendLine(e.StackTrace), default));
+            return await Task.FromResult(InvocationResult<TResult?>.Create(false, new StringBuilder().AppendLine(e.Message).AppendLine(e.StackTrace), null, default));
         }
     }
 

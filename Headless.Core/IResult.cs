@@ -10,5 +10,6 @@ public interface ICompileResult : IResult;
 
 public interface IInvocationResult<out TResult> : IResult
 {
+    Type? ResultType { get; }
     TResult? Result { get; }
 }
