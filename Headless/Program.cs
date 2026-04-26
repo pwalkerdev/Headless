@@ -30,6 +30,12 @@ if (script.Length == 0)
 }
 
 logger.LogInformation("-------------HEADLESS-----------");
+//Console.WriteLine(Banner.HeadlessAsciiArt); // NOTE: this is intentionally a console log and not using a logger to circumvent the message formatting which otherwise ruins the ascii art
+
+if (!string.IsNullOrEmpty(options.CSharpScriptInterpreter.FileName))
+    logger.LogInformation("Processing file: `{FileName}`", options.CSharpScriptInterpreter.FileName);
+
+logger.LogInformation("Beginning operation: `{RunMode}`", options.RunMode);
 
 var compileTaskTimedResult = await scope.ServiceProvider.GetRequiredKeyedService<IScriptCompiler>(options.TargetKey).Compile(script.ToString()).WithTimer();
 if (compileTaskTimedResult.TaskResult.IsSuccess)
